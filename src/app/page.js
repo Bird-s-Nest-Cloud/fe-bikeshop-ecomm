@@ -29,8 +29,7 @@ export default function Home() {
 
   return (
     <main className="w-full">
-      {/* Header Section */}
-      <Header headerData={data.header} categoriesData={data.categories} />
+      
 
       {/* Hero Carousel Section */}
       <section className="px-4 md:px-6 lg:px-12 py-4 bg-white">
@@ -51,8 +50,7 @@ export default function Home() {
       {/* Brands Carousel Section */}
       <BrandsCarousel brandsData={data.brands} />
 
-      {/* Footer Section */}
-      <Footer footerData={data.footer} />
+      
     </main>
   );
 }

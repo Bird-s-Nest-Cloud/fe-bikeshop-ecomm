@@ -17,7 +17,7 @@ import Link from 'next/link';
 const TopBar = ({ topbarData }) => {
   return (
     <div
-      className="hidden sm:flex items-center justify-between px-4 md:px-6 lg:px-12 py-2 bg-[#1a237e] text-white border-b border-[#000051]"
+      className="hidden sm:flex items-center justify-between px-4 md:px-6 lg:px-12 py-2 bg-[--primary-main] text-white border-b border-[--primary-light]"
     >
       {/* Left Section - Welcome Text */}
       <div className="flex items-center gap-4">

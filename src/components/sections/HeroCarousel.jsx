@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import ImageComponent from '../shared/ImageComponent';
 
 /**
  * HeroCarousel Component
@@ -72,19 +74,27 @@ const HeroCarousel = ({ heroData }) => {
         {slides.map((slide, idx) => (
           <div
             key={idx}
-            className="relative min-w-full"
+            className="relative min-w-full overflow-hidden"
             style={{
               minHeight: '500px',
-              backgroundImage: `url('${slide.image}')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
             }}
           >
+            {/* Background Image */}
+            <ImageComponent
+              src={slide.image}
+              alt={slide.headline}
+              width={1200}
+              height={500}
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+            />
+
             {/* Overlay */}
             <div
               className="absolute inset-0"
               style={{
                 background: 'rgba(0, 0, 0, 0.3)',
+                zIndex: 2,
               }}
             />
 
@@ -94,6 +104,7 @@ const HeroCarousel = ({ heroData }) => {
               style={{
                 padding: '64px',
                 maxWidth: '600px',
+                zIndex: 3,
               }}
             >
               {/* Headline */}
@@ -120,7 +131,12 @@ const HeroCarousel = ({ heroData }) => {
               {slide.cta && (
                 <Link
                   href={slide.cta.href}
-                  className="inline-block bg-[#ff6b35] text-white px-8 py-4 rounded-md font-semibold text-base transition-all hover:bg-orange-600 hover:shadow-lg"
+                  className="inline-block text-white px-8 py-4 rounded-md font-semibold text-base transition-all hover:shadow-lg"
+                  style={{
+                    backgroundColor: 'var(--accent-orange)',
+                  }}
+                  onMouseEnter={(e) => e.target.style.opacity = '0.9'}
+                  onMouseLeave={(e) => e.target.style.opacity = '1'}
                 >
                   {slide.cta.label}
                 </Link>
@@ -133,37 +149,29 @@ const HeroCarousel = ({ heroData }) => {
       {/* Navigation Buttons - Prev */}
       <button
         onClick={prevSlide}
-        className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/80 text-[#1a237e] border-none cursor-pointer flex items-center justify-center transition-all hover:bg-white hover:shadow-lg z-10"
+        className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full border-none cursor-pointer flex items-center justify-center transition-all hover:shadow-lg z-10"
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          color: 'var(--primary-main)',
+        }}
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
+        <ChevronLeft size={24} />
       </button>
 
       {/* Navigation Buttons - Next */}
       <button
         onClick={nextSlide}
-        className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/80 text-[#1a237e] border-none cursor-pointer flex items-center justify-center transition-all hover:bg-white hover:shadow-lg z-10"
+        className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full border-none cursor-pointer flex items-center justify-center transition-all hover:shadow-lg z-10"
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          color: 'var(--primary-main)',
+        }}
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
+        <ChevronRight size={24} />
       </button>
 
       {/* Slide Indicators - Dots */}
-      <div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 z-10"
-      >
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 z-10">
         {slides.map((_, idx) => (
           <button
             key={idx}
@@ -172,7 +180,7 @@ const HeroCarousel = ({ heroData }) => {
             style={{
               width: currentSlide === idx ? '2rem' : '0.5rem',
               height: '0.5rem',
-              background: currentSlide === idx ? '#ff6b35' : 'rgba(255, 255, 255, 0.5)',
+              background: currentSlide === idx ? 'var(--accent-orange)' : 'rgba(255, 255, 255, 0.5)',
               transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           />

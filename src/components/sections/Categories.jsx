@@ -2,6 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import ImageComponent from '../shared/ImageComponent';
 
 /**
  * Categories Component
@@ -29,8 +31,8 @@ const Categories = ({ categoriesData }) => {
       <div className="max-w-7xl mx-auto">
         {/* Section Title */}
         <div className="mb-12 text-center">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">{title}</h2>
-          <div className="w-20 h-1 bg-[#ff6b35] mx-auto rounded-full" />
+          <h2 className="text-4xl font-bold mb-4" style={{ color: 'var(--neutral-gray900)' }}>{title}</h2>
+          <div className="w-20 h-1 mx-auto rounded-full" style={{ backgroundColor: 'var(--accent-orange)' }} />
         </div>
 
         {/* Categories Grid */}
@@ -38,17 +40,20 @@ const Categories = ({ categoriesData }) => {
           {items.map((item, idx) => (
             <Link key={idx} href={item.href} className="group cursor-pointer">
               <div
-                className="relative overflow-hidden rounded-lg min-h-[250px] bg-gray-200 shadow-md hover:shadow-xl transition-all"
+                className="relative overflow-hidden rounded-lg min-h-[250px] shadow-md hover:shadow-xl transition-all"
                 style={{
                   minHeight: '250px',
+                  backgroundColor: 'var(--neutral-gray300)',
                 }}
               >
                 {/* Background Image */}
-                <div
-                  className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-300"
-                  style={{
-                    backgroundImage: `url('${item.image}')`,
-                  }}
+                <ImageComponent
+                  src={item.image}
+                  alt={item.label}
+                  width={300}
+                  height={250}
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
                 />
 
                 {/* Overlay */}
@@ -61,6 +66,7 @@ const Categories = ({ categoriesData }) => {
                   className="absolute inset-0 p-6 text-white flex flex-col justify-end"
                   style={{
                     background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
+                    zIndex: 2,
                   }}
                 >
                   <h3 className="text-lg font-bold mb-2">{item.label}</h3>
@@ -69,19 +75,7 @@ const Categories = ({ categoriesData }) => {
                   <div
                     className="opacity-0 group-hover:opacity-100 -translate-x-2.5 group-hover:translate-x-0 transition-all duration-300"
                   >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 7l5 5m0 0l-5 5m5-5H6"
-                      />
-                    </svg>
+                    <ArrowRight size={24} />
                   </div>
                 </div>
               </div>

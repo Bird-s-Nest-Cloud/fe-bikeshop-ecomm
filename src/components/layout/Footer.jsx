@@ -8,14 +8,52 @@ import Link from 'next/link';
  * Main footer with company support, navigation links, and social media
  */
 
-const Footer = ({ footerData }) => {
+const Footer = () => {
+  
+
+  const footerData =  {
+    id: "footer",
+    logo: "/images/gearx-logo.png",
+    support: {
+      headline: "Got Questions? Call us 24/7!",
+      phone: "+88-01789-881111",
+      address: "House – 183/8, Pirerbag (60 feet Road), Mirpur, Dhaka, Bangladesh",
+      socials: [
+        { icon: "facebook", href: "https://facebook.com/gearx" },
+        { icon: "instagram", href: "https://instagram.com/gearx" },
+        { icon: "youtube", href: "https://youtube.com/gearx" }
+      ]
+    },
+    columns: [
+      {
+        title: "Find It Fast",
+        links: [
+          { label: "Helmets", href: "/c/helmets" },
+          { label: "Riding Gears", href: "/c/gears" },
+          { label: "Rain Gear", href: "/c/rain" }
+        ]
+      },
+      {
+        title: "Quick Links",
+        links: [
+          { label: "About Us", href: "/about" },
+          { label: "My Account", href: "/account" },
+          { label: "Terms and Conditions", href: "/terms" },
+          { label: "Contact Us", href: "/contact" },
+          { label: "Warranty Policy", href: "/warranty-policy" }
+        ]
+      }
+    ],
+    copyright: "© GearX Bangladesh - All Rights Reserved"
+  }
+
   const support = footerData?.support;
   const columns = footerData?.columns || [];
   const copyright = footerData?.copyright;
 
   return (
-    <footer className="bg-[#000051] text-white pt-16">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-12">
+    <footer className="bg-[--primary-main] text-white pt-16 px-6">
+      <div className="max-w-7xl mx-auto">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Company Support Section */}

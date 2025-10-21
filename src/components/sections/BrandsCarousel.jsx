@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import ImageComponent from '../shared/ImageComponent';
 
 /**
  * BrandsCarousel Component
@@ -48,14 +50,14 @@ const BrandsCarousel = ({ brandsData }) => {
   };
 
   return (
-    <section className="w-full bg-gray-100 py-16 px-4 md:px-6 lg:px-12">
+    <section className="w-full py-16 px-4 md:px-6 lg:px-12" style={{ backgroundColor: 'var(--neutral-gray300)' }}>
       <div className="max-w-7xl mx-auto">
         {/* Section Title */}
         <div className="mb-12 text-center">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl font-bold mb-4" style={{ color: 'var(--neutral-gray900)' }}>
             {title}
           </h2>
-          <div className="w-20 h-1 bg-[#ff6b35] mx-auto rounded-full" />
+          <div className="w-20 h-1 mx-auto rounded-full" style={{ backgroundColor: 'var(--accent-orange)' }} />
         </div>
 
         {/* Carousel Container */}
@@ -69,19 +71,21 @@ const BrandsCarousel = ({ brandsData }) => {
             {getVisibleBrands().map((brand, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-lg p-8 flex items-center justify-center min-h-[150px] shadow-sm hover:shadow-lg hover:scale-105 transition-all cursor-pointer"
+                className="rounded-lg p-8 flex items-center justify-center min-h-[150px] shadow-sm hover:shadow-lg hover:scale-105 transition-all cursor-pointer"
+                style={{ backgroundColor: 'var(--neutral-white)' }}
               >
                 <div className="relative w-full h-20 flex items-center justify-center">
                   {/* Brand Logo or Name */}
                   {brand.logo ? (
-                    <div
-                      className="w-full h-full bg-contain bg-center bg-no-repeat"
-                      style={{
-                        backgroundImage: `url('${brand.logo}')`,
-                      }}
+                    <ImageComponent
+                      src={brand.logo}
+                      alt={brand.name}
+                      width={150}
+                      height={80}
+                      className="w-full h-full object-contain"
                     />
                   ) : (
-                    <span className="text-lg font-bold text-[#1a237e] text-center">
+                    <span className="text-lg font-bold text-center" style={{ color: 'var(--primary-main)' }}>
                       {brand.name}
                     </span>
                   )}
@@ -96,31 +100,19 @@ const BrandsCarousel = ({ brandsData }) => {
               {/* Previous Button */}
               <button
                 onClick={prevSlide}
-                className="absolute left-0 top-1/2 -translate-y-1/2 bg-[#ff6b35] text-white w-10 h-10 rounded-full border-none cursor-pointer items-center justify-center transition-colors hover:bg-orange-600 hidden lg:flex z-10"
+                className="absolute left-0 top-1/2 -translate-y-1/2 text-white w-10 h-10 rounded-full border-none cursor-pointer items-center justify-center transition-colors hover:opacity-80 hidden lg:flex z-10"
+                style={{ backgroundColor: 'var(--accent-orange)' }}
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
+                <ChevronLeft size={24} />
               </button>
 
               {/* Next Button */}
               <button
                 onClick={nextSlide}
-                className="absolute right-0 top-1/2 -translate-y-1/2 bg-[#ff6b35] text-white w-10 h-10 rounded-full border-none cursor-pointer items-center justify-center transition-colors hover:bg-orange-600 hidden lg:flex z-10"
+                className="absolute right-0 top-1/2 -translate-y-1/2 text-white w-10 h-10 rounded-full border-none cursor-pointer items-center justify-center transition-colors hover:opacity-80 hidden lg:flex z-10"
+                style={{ backgroundColor: 'var(--accent-orange)' }}
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
+                <ChevronRight size={24} />
               </button>
             </>
           )}
@@ -138,7 +130,7 @@ const BrandsCarousel = ({ brandsData }) => {
                 style={{
                   width: currentIndex === idx ? '2rem' : '0.5rem',
                   height: '0.5rem',
-                  background: currentIndex === idx ? '#ff6b35' : '#eeeeee',
+                  background: currentIndex === idx ? 'var(--accent-orange)' : 'var(--neutral-gray300)',
                 }}
               />
             ))}

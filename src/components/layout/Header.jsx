@@ -13,16 +13,63 @@ import TopBar from './TopBar';
  * 2. Navigation - Logo, Home, All Products, Category (dropdown), Search, Cart
  */
 
-const Header = ({ headerData, categoriesData }) => {
+const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
-  const categories = categoriesData?.items || [];
+  const categories = [
+      { label: "Helmets", image: "/images/categories/helmets.jpg", href: "/c/helmets" },
+      { label: "Riding Gears", image: "/images/categories/riding-gears.jpg", href: "/c/gears" },
+      { label: "Rain Gear", image: "/images/categories/rain-gear.jpg", href: "/c/rain" },
+      { label: "Accessories", image: "/images/categories/accessories.jpg", href: "/c/accessories" }
+    ]
+
+  const headerData = {
+    topbar: {
+      welcomeText: "Welcome to GearX Bangladesh",
+      links: [
+        { label: "GearX Bangladesh Warranty Policy", href: "/warranty-policy" },
+        { label: "Authorized Dealer List", href: "/dealers" },
+        { label: "My account", href: "/account" }
+      ],
+      support: {
+        icon: "headset",
+        phone: "+88-01789-881111",
+        email: "info@gearxbd.com"
+      }
+    },
+    
+    navbar: {
+      logo: {
+        src: "/images/gearx-logo.png",
+        alt: "GearX Bangladesh"
+      },
+      menu: [
+        { label: "HOME", href: "/" },
+        {
+          label: "ABOUT US", dropdown: [
+            { label: "Our Story", href: "/about" },
+            { label: "Our Team", href: "/team" }
+          ]
+        },
+        { label: "TIPS & TRICKS", href: "/tips" },
+        { label: "NEWS & UPDATES", href: "/news" },
+        { label: "BECOME A DEALER", href: "/dealer" },
+        { label: "CONTACT US", href: "/contact" }
+      ],
+      actions: {
+        productDropdown: "OUR PRODUCTS",
+        searchPlaceholder: "Search for Products",
+        categoryFilter: "All Categories",
+        icons: ["search", "refresh", "wishlist", "cart"]
+      }
+    }
+  }
 
   return (
     <>
       {/* TopBar Section */}
-      <TopBar topbarData={headerData?.topbar} />
+      <TopBar topbarData={headerData.topbar} />
 
       {/* Main Navigation */}
       <nav
@@ -51,7 +98,7 @@ const Header = ({ headerData, categoriesData }) => {
 
             {/* All Products Link */}
             <Link
-              href="/shop"
+              href="/products"
               className="text-sm font-medium text-gray-900 hover:text-orange-600 transition-colors no-underline"
             >
               All Products
