@@ -98,3 +98,12 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Input field text color - darker */
+input {
+  color: var(--primary-dark);
+}
+
+input::placeholder {
+  color: var(--neutral-gray600);
+}
