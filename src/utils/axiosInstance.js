@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const axiosInstance = axios.create({
-  baseURL: process.env.API_URL,
+  baseURL: "http://localhost:8000/api",
   timeout: 50000,
 });
 
