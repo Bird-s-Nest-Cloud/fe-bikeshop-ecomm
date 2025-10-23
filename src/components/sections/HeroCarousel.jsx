@@ -16,15 +16,30 @@ import ImageComponent from '../shared/ImageComponent';
  * - Call-to-action button
  * 
  * Props:
- * - heroData: Object containing slides array and autoplay settings
+ * - banners: Array of banner objects from API
  */
 
-const HeroCarousel = ({ heroData }) => {
+const HeroCarousel = ({ banners = [] }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoplay, setIsAutoplay] = useState(true);
 
-  const slides = heroData?.slides || [];
-  const autoplayInterval = heroData?.intervalMs || 5000;
+  // Transform API banners data to slides format
+  const slides = banners
+    .map(banner => ({
+      id: banner.id,
+      image: banner.image,
+      imageMobile: banner.image_mobile,
+      headline: banner.title,
+      subtext: banner.subtitle,
+      cta: {
+        label: banner.button_text || 'Shop Now',
+        href: banner.link_product ? `/products/${banner.link_product.slug}` : '/products'
+      },
+      displayOrder: banner.display_order
+    }))
+    .sort((a, b) => a.displayOrder - b.displayOrder);
+
+  const autoplayInterval = 5000;
 
   // Auto-play logic
   useEffect(() => {

@@ -2,9 +2,15 @@
 
 import React, { useState } from 'react';
 import { ChevronDown, X } from 'lucide-react';
-import { categories, brands } from '@/data/products-data';
 
-const FilterSidebar = ({ filters, onFilterChange, isOpen, onClose }) => {
+const FilterSidebar = ({ 
+  filters, 
+  onFilterChange, 
+  isOpen, 
+  onClose,
+  categories = [],
+  brands = []
+}) => {
   const [expandedSections, setExpandedSections] = useState({
     price: true,
     category: true,
@@ -28,10 +34,10 @@ const FilterSidebar = ({ filters, onFilterChange, isOpen, onClose }) => {
     });
   };
 
-  const handleCategoryChange = (category) => {
-    const updatedCategories = filters.selectedCategories.includes(category)
-      ? filters.selectedCategories.filter((c) => c !== category)
-      : [...filters.selectedCategories, category];
+  const handleCategoryChange = (categorySlug) => {
+    const updatedCategories = filters.selectedCategories.includes(categorySlug)
+      ? filters.selectedCategories.filter((c) => c !== categorySlug)
+      : [...filters.selectedCategories, categorySlug];
 
     onFilterChange({
       ...filters,
@@ -39,10 +45,10 @@ const FilterSidebar = ({ filters, onFilterChange, isOpen, onClose }) => {
     });
   };
 
-  const handleBrandChange = (brand) => {
-    const updatedBrands = filters.selectedBrands.includes(brand)
-      ? filters.selectedBrands.filter((b) => b !== brand)
-      : [...filters.selectedBrands, brand];
+  const handleBrandChange = (brandSlug) => {
+    const updatedBrands = filters.selectedBrands.includes(brandSlug)
+      ? filters.selectedBrands.filter((b) => b !== brandSlug)
+      : [...filters.selectedBrands, brandSlug];
 
     onFilterChange({
       ...filters,
@@ -166,15 +172,18 @@ const FilterSidebar = ({ filters, onFilterChange, isOpen, onClose }) => {
             {expandedSections.category && (
               <div className="space-y-3">
                 {categories.map((category) => (
-                  <label key={category} className="flex items-center cursor-pointer">
+                  <label key={category.slug} className="flex items-center cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={filters.selectedCategories.includes(category)}
-                      onChange={() => handleCategoryChange(category)}
+                      checked={filters.selectedCategories.includes(category.slug)}
+                      onChange={() => handleCategoryChange(category.slug)}
                       className="w-4 h-4 rounded accent-orange-500"
                     />
                     <span className="ml-3 text-sm" style={{ color: 'var(--neutral-gray900)' }}>
-                      {category}
+                      {category.name}
+                      <span className="text-xs ml-1" style={{ color: 'var(--neutral-gray500)' }}>
+                        ({category.product_count})
+                      </span>
                     </span>
                   </label>
                 ))}
@@ -203,15 +212,18 @@ const FilterSidebar = ({ filters, onFilterChange, isOpen, onClose }) => {
             {expandedSections.brand && (
               <div className="space-y-3">
                 {brands.map((brand) => (
-                  <label key={brand} className="flex items-center cursor-pointer">
+                  <label key={brand.slug} className="flex items-center cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={filters.selectedBrands.includes(brand)}
-                      onChange={() => handleBrandChange(brand)}
+                      checked={filters.selectedBrands.includes(brand.slug)}
+                      onChange={() => handleBrandChange(brand.slug)}
                       className="w-4 h-4 rounded accent-orange-500"
                     />
                     <span className="ml-3 text-sm" style={{ color: 'var(--neutral-gray900)' }}>
-                      {brand}
+                      {brand.name}
+                      <span className="text-xs ml-1" style={{ color: 'var(--neutral-gray500)' }}>
+                        ({brand.product_count})
+                      </span>
                     </span>
                   </label>
                 ))}

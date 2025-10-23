@@ -19,12 +19,19 @@ import ImageComponent from '../shared/ImageComponent';
  * - Responsive grid layout
  * 
  * Props:
- * - categoriesData: Object containing title and items array
+ * - categories: Array of category objects from API
  */
 
-const Categories = ({ categoriesData }) => {
-  const items = categoriesData?.items || [];
-  const title = categoriesData?.title || 'Shop by Category';
+const Categories = ({ categories = [] }) => {
+  const title = 'Shop by Category';
+  
+  // Transform API categories data to items format
+  const items = categories.map(category => ({
+    name: category.name,
+    image: category.image_url,
+    href: `/products?category=${category.slug}`,
+    productCount: category.product_count
+  }));
 
   return (
     <section className="w-full bg-white py-16 px-4 md:px-6 lg:px-12">
@@ -49,7 +56,7 @@ const Categories = ({ categoriesData }) => {
                 {/* Background Image */}
                 <ImageComponent
                   src={item.image}
-                  alt={item.label}
+                  alt={item.name}
                   width={300}
                   height={250}
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
@@ -69,7 +76,7 @@ const Categories = ({ categoriesData }) => {
                     zIndex: 2,
                   }}
                 >
-                  <h3 className="text-lg font-bold mb-2">{item.label}</h3>
+                  <h3 className="text-lg font-bold mb-2">{item.name}</h3>
 
                   {/* Arrow Icon */}
                   <div

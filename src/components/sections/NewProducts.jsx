@@ -7,15 +7,32 @@ import ProductCard from '../ProductCard';
 /**
  * NewProducts Component
  * Displays new arrival products in a responsive carousel using the ProductCard component
+ * 
+ * Props:
+ * - newSection: New products section object from API
  */
 
-const NewProducts = ({ newProductsData }) => {
+const NewProducts = ({ newSection }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(4);
 
-  const products = newProductsData?.products || [];
-  const title = newProductsData?.title || 'New Arrivals';
-  const subtitle = newProductsData?.subtitle || '';
+  if (!newSection) return null;
+
+  const title = newSection.title || 'New Arrivals';
+  const subtitle = newSection.subtitle || '';
+  
+  // Transform API products data
+  const products = (newSection.products || []).map(product => ({
+    id: product.id,
+    name: product.title,
+    slug: product.slug,
+    price: parseFloat(product.price),
+    salePrice: product.sale_price ? parseFloat(product.sale_price) : null,
+    image: product.primary_image || '/placeholder-image.jpg',
+    rating: 4.5,
+    reviews: 0,
+    badge: product.is_on_sale ? 'Sale' : null
+  }));
 
   // Update items per view based on screen size
   useEffect(() => {

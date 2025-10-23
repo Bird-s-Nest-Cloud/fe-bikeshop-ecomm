@@ -6,12 +6,29 @@ import ProductCard from '../ProductCard';
 /**
  * FeaturedProducts Component
  * Displays featured products in a responsive grid using the ProductCard component
+ * 
+ * Props:
+ * - featuredSection: Featured section object from API
  */
 
-const FeaturedProducts = ({ productsData }) => {
-  const products = productsData?.products || [];
-  const title = productsData?.title || 'Featured Products';
-  const subtitle = productsData?.subtitle || '';
+const FeaturedProducts = ({ featuredSection }) => {
+  if (!featuredSection) return null;
+
+  const title = featuredSection.title || 'Featured Products';
+  const subtitle = featuredSection.subtitle || '';
+  
+  // Transform API products data
+  const products = (featuredSection.products || []).map(product => ({
+    id: product.id,
+    name: product.title,
+    slug: product.slug,
+    price: parseFloat(product.price),
+    salePrice: product.sale_price ? parseFloat(product.sale_price) : null,
+    image: product.primary_image || '/placeholder-image.jpg',
+    rating: 4.5,
+    reviews: 0,
+    badge: product.is_on_sale ? 'Sale' : null
+  }));
 
   return (
     <section className="w-full bg-gray-100 py-16 px-4 md:px-6 lg:px-12">

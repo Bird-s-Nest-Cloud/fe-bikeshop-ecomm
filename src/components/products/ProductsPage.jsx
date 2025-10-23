@@ -1,72 +1,156 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Filter } from 'lucide-react';
 import ProductCard from '../ProductCard';
 import FilterSidebar from './FilterSidebar';
 import Pagination from './Pagination';
-import { productsData } from '@/data/products-data';
 
-const ITEMS_PER_PAGE = 12;
+/**
+ * ProductsPage Component
+ * 
+ * Props:
+ * - initialProductsData: Products data from API
+ * - categoriesData: Categories for filters
+ * - brandsData: Brands for filters
+ * - initialSearchParams: Initial URL search params
+ */
 
-const ProductsPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
+const ProductsPage = ({ 
+  initialProductsData, 
+  categoriesData = [], 
+  brandsData = [],
+  initialSearchParams = {}
+}) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [filterSidebarOpen, setFilterSidebarOpen] = useState(false);
-  const [sortBy, setSortBy] = useState('newest');
-  const [filters, setFilters] = useState({
-    priceRange: { min: 0, max: 25000 },
-    selectedCategories: [],
-    selectedBrands: [],
+
+  // Transform API products data to component format
+  const products = (initialProductsData?.data || []).map(product => ({
+    id: product.id,
+    name: product.title,
+    slug: product.slug,
+    price: parseFloat(product.price),
+    salePrice: product.sale_price ? parseFloat(product.sale_price) : null,
+    image: product.primary_image || '/placeholder-image.jpg',
+    category: product.category?.name,
+    categorySlug: product.category?.slug,
+    brand: product.brand?.name,
+    brandSlug: product.brand?.slug,
+    rating: 4.5,
+    reviews: 0,
+    badge: product.is_on_sale ? 'Sale' : null,
+    stock: product.stock,
+    variantCount: product.variant_count
+  }));
+
+  const meta = initialProductsData?.meta || {
+    current_page: 1,
+    last_page: 1,
+    total: 0,
+    per_page: 20,
+    from: 0,
+    to: 0
+  };
+
+  // Get current filters from URL
+  const getCurrentFilters = () => ({
+    priceRange: {
+      min: parseInt(searchParams.get('min_price') || '0'),
+      max: parseInt(searchParams.get('max_price') || '25000')
+    },
+    selectedCategories: searchParams.get('category')?.split(',').filter(Boolean) || [],
+    selectedBrands: searchParams.get('brand')?.split(',').filter(Boolean) || [],
+    search: searchParams.get('search') || '',
+    onSale: searchParams.get('on_sale') === 'true',
+    isFeatured: searchParams.get('is_featured') === 'true'
   });
 
-  // Filter and sort products
-  const filteredAndSortedProducts = useMemo(() => {
-    let filtered = productsData.filter((product) => {
-      const priceMatch =
-        product.price >= filters.priceRange.min &&
-        product.price <= filters.priceRange.max;
+  const [filters, setFilters] = useState(getCurrentFilters());
 
-      const categoryMatch =
-        filters.selectedCategories.length === 0 ||
-        filters.selectedCategories.includes(product.category);
+  // Get current sort from URL
+  const getSortBy = () => {
+    const ordering = searchParams.get('ordering');
+    if (ordering === 'price') return 'price-asc';
+    if (ordering === '-price') return 'price-desc';
+    if (ordering === 'created_at') return 'oldest';
+    if (ordering === '-created_at') return 'newest';
+    if (ordering === 'name') return 'name-asc';
+    if (ordering === '-name') return 'name-desc';
+    return 'newest';
+  };
 
-      const brandMatch =
-        filters.selectedBrands.length === 0 ||
-        filters.selectedBrands.includes(product.brand);
+  const [sortBy, setSortBy] = useState(getSortBy());
 
-      return priceMatch && categoryMatch && brandMatch;
-    });
+  // Update URL with new query params
+  const updateURL = (newFilters, newSortBy, newPage) => {
+    const params = new URLSearchParams();
 
-    // Sort
-    switch (sortBy) {
-      case 'price-asc':
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-desc':
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case 'oldest':
-        filtered.sort((a, b) => a.createdAt - b.createdAt);
-        break;
-      case 'newest':
-      default:
-        filtered.sort((a, b) => b.createdAt - a.createdAt);
-        break;
+    // Add filters
+    if (newFilters.priceRange.min > 0) {
+      params.set('min_price', newFilters.priceRange.min.toString());
+    }
+    if (newFilters.priceRange.max < 25000) {
+      params.set('max_price', newFilters.priceRange.max.toString());
+    }
+    if (newFilters.selectedCategories.length > 0) {
+      params.set('category', newFilters.selectedCategories.join(','));
+    }
+    if (newFilters.selectedBrands.length > 0) {
+      params.set('brand', newFilters.selectedBrands.join(','));
+    }
+    if (newFilters.search) {
+      params.set('search', newFilters.search);
+    }
+    if (newFilters.onSale) {
+      params.set('on_sale', 'true');
+    }
+    if (newFilters.isFeatured) {
+      params.set('is_featured', 'true');
     }
 
-    return filtered;
-  }, [filters, sortBy]);
+    // Add sorting
+    if (newSortBy && newSortBy !== 'newest') {
+      const orderingMap = {
+        'price-asc': 'price',
+        'price-desc': '-price',
+        'oldest': 'created_at',
+        'newest': '-created_at',
+        'name-asc': 'name',
+        'name-desc': '-name'
+      };
+      params.set('ordering', orderingMap[newSortBy] || '-created_at');
+    }
 
-  // Pagination
-  const totalPages = Math.ceil(filteredAndSortedProducts.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedProducts = filteredAndSortedProducts.slice(startIndex, endIndex);
+    // Add pagination
+    if (newPage && newPage > 1) {
+      params.set('page', newPage.toString());
+    }
 
-  // Reset to first page when filters change
+    // Navigate to new URL
+    const queryString = params.toString();
+    router.push(queryString ? `/products?${queryString}` : '/products');
+  };
+
+  // Handle filter changes
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
-    setCurrentPage(1);
+    updateURL(newFilters, sortBy, 1); // Reset to page 1
+  };
+
+  // Handle sort changes
+  const handleSortChange = (newSortBy) => {
+    setSortBy(newSortBy);
+    updateURL(filters, newSortBy, 1); // Reset to page 1
+  };
+
+  // Handle page changes
+  const handlePageChange = (newPage) => {
+    updateURL(filters, sortBy, newPage);
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -78,9 +162,7 @@ const ProductsPage = () => {
             All Products
           </h1>
           <p className="text-lg" style={{ color: 'var(--neutral-gray700)' }}>
-            Showing {paginatedProducts.length > 0 ? startIndex + 1 : 0} to{' '}
-            {Math.min(endIndex, filteredAndSortedProducts.length)} of{' '}
-            {filteredAndSortedProducts.length} products
+            Showing {meta.from || 0} to {meta.to || 0} of {meta.total || 0} products
           </p>
         </div>
 
@@ -98,16 +180,15 @@ const ProductsPage = () => {
           {/* Sort Dropdown */}
           <select
             value={sortBy}
-            onChange={(e) => {
-              setSortBy(e.target.value);
-              setCurrentPage(1);
-            }}
+            onChange={(e) => handleSortChange(e.target.value)}
             className="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 ml-auto"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
             <option value="price-asc">Price: Low to High</option>
             <option value="price-desc">Price: High to Low</option>
+            <option value="name-asc">Name: A to Z</option>
+            <option value="name-desc">Name: Z to A</option>
           </select>
         </div>
 
@@ -120,35 +201,39 @@ const ProductsPage = () => {
               onFilterChange={handleFilterChange}
               isOpen={true}
               onClose={() => {}}
+              categories={categoriesData}
+              brands={brandsData}
             />
           </div>
 
           {/* Mobile Sidebar */}
           <div className='block lg:hidden'>
             <FilterSidebar
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            isOpen={filterSidebarOpen}
-            onClose={() => setFilterSidebarOpen(false)}
-          />
+              filters={filters}
+              onFilterChange={handleFilterChange}
+              isOpen={filterSidebarOpen}
+              onClose={() => setFilterSidebarOpen(false)}
+              categories={categoriesData}
+              brands={brandsData}
+            />
           </div>
 
           {/* Products Grid */}
           <div className="flex-1">
-            {paginatedProducts.length > 0 ? (
+            {products.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {paginatedProducts.map((product) => (
+                  {products.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
 
                 {/* Pagination */}
-                {totalPages > 1 && (
+                {meta.last_page > 1 && (
                   <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage}
+                    currentPage={meta.current_page}
+                    totalPages={meta.last_page}
+                    onPageChange={handlePageChange}
                   />
                 )}
               </>
