@@ -1,25 +1,40 @@
 'use client';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { clearCart } from '@/redux/slices/cartSlice';
+import { clearCart, fetchCart } from '@/redux/slices/cartSlice';
+import { toast } from 'react-toastify';
 import { ShoppingCart } from 'lucide-react';
 
-export default function CartSummary() {
+export default function CartSummary({ summary }) {
   const dispatch = useDispatch();
-  const items = useSelector((state) => state.cart.items);
+  const loading = useSelector((state) => state.cart.loading);
 
-  const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+  if (!summary) {
+    return null;
+  }
 
-  const originalTotal = items.reduce((sum, item) => {
-    return sum + item.quantity * item.variant.price;
-  }, 0);
+  const subtotal = parseFloat(summary.subtotal || 0);
+  const totalSavings = parseFloat(summary.total_savings || 0);
+  const tax = parseFloat(summary.tax || 0);
+  const shipping = parseFloat(summary.shipping || 0);
+  const grandTotal = parseFloat(summary.grand_total || 0);
+  const totalItems = summary.total_items || 0;
 
-  const savings = originalTotal - subtotal;
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  const handleClearCart = async () => {
+    if (!confirm('Are you sure you want to clear your entire cart?')) {
+      return;
+    }
 
-  const handleClearCart = () => {
-    if (confirm('Are you sure you want to clear your entire cart?')) {
-      dispatch(clearCart());
+    try {
+      const result = await dispatch(clearCart()).unwrap();
+
+      if (result.status) {
+        toast.success(result.message || 'Cart cleared successfully!');
+        dispatch(fetchCart());
+      }
+    } catch (error) {
+      console.error('Clear cart error:', error);
+      toast.error(error.message || 'Failed to clear cart');
     }
   };
 
@@ -36,28 +51,32 @@ export default function CartSummary() {
         {/* Subtotal */}
         <div className="flex justify-between items-center">
           <span className="text-gray-600">Subtotal ({totalItems} items)</span>
-          <span className="font-semibold text-gray-900">${subtotal.toFixed(2)}</span>
+          <span className="font-semibold text-gray-900">৳{subtotal.toFixed(2)}</span>
         </div>
 
         {/* Savings */}
-        {savings > 0 && (
+        {totalSavings > 0 && (
           <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
             <span className="text-green-700 font-medium">Total Savings</span>
-            <span className="font-semibold text-green-700">-${savings.toFixed(2)}</span>
+            <span className="font-semibold text-green-700">-৳{totalSavings.toFixed(2)}</span>
           </div>
         )}
 
         {/* Shipping */}
         <div className="flex justify-between items-center text-gray-600">
           <span>Shipping</span>
-          <span className="font-semibold text-green-600">FREE</span>
+          <span className="font-semibold text-green-600">
+            {shipping > 0 ? `৳${shipping.toFixed(2)}` : 'FREE'}
+          </span>
         </div>
 
         {/* Tax */}
-        <div className="flex justify-between items-center text-gray-600">
-          <span>Tax</span>
-          <span className="font-semibold text-gray-900">${(subtotal * 0.1).toFixed(2)}</span>
-        </div>
+        {tax > 0 && (
+          <div className="flex justify-between items-center text-gray-600">
+            <span>Tax</span>
+            <span className="font-semibold text-gray-900">৳{tax.toFixed(2)}</span>
+          </div>
+        )}
       </div>
 
       {/* Divider */}
@@ -68,7 +87,7 @@ export default function CartSummary() {
         <div className="flex justify-between items-center">
           <span className="text-lg font-bold text-gray-900">Grand Total</span>
           <span className="text-3xl font-bold text-orange-600">
-            ${(subtotal * 1.1).toFixed(2)}
+            ৳{grandTotal.toFixed(2)}
           </span>
         </div>
       </div>
@@ -80,15 +99,16 @@ export default function CartSummary() {
         </button>
         <button
           onClick={handleClearCart}
-          className="w-full bg-transparent border-2 border-red-300 text-red-600 hover:bg-red-50 font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
+          disabled={loading}
+          className="w-full bg-transparent border-2 border-red-300 text-red-600 hover:bg-red-50 font-semibold py-3 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Clear Cart
+          {loading ? 'Clearing...' : 'Clear Cart'}
         </button>
       </div>
 
       {/* Info */}
       <p className="text-center text-xs text-gray-500 mt-4">
-        Free shipping on orders over $50
+        Free shipping on orders over ৳5000
       </p>
     </div>
   );

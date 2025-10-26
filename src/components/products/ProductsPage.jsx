@@ -28,7 +28,13 @@ const ProductsPage = ({
   const [filterSidebarOpen, setFilterSidebarOpen] = useState(false);
 
   // Transform API products data to component format
-  const products = (initialProductsData?.data || []).map(product => ({
+  const productsArray = Array.isArray(initialProductsData?.data) 
+    ? initialProductsData.data 
+    : Array.isArray(initialProductsData) 
+    ? initialProductsData 
+    : [];
+
+  const products = productsArray.map(product => ({
     id: product.id,
     name: product.title,
     slug: product.slug,
@@ -46,7 +52,7 @@ const ProductsPage = ({
     variantCount: product.variant_count
   }));
 
-  const meta = initialProductsData?.meta || {
+  const meta = initialProductsData?.meta || initialProductsData?.pagination || {
     current_page: 1,
     last_page: 1,
     total: 0,

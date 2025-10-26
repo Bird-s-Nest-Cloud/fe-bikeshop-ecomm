@@ -44,13 +44,31 @@ async function getProductsData(searchParams) {
     });
 
     if (response.data && response.data.status) {
-      return response.data.data;
+      // Handle nested data structure: data.data.items and data.data.pagination
+      const nestedData = response.data.data;
+      
+      if (!nestedData) {
+        console.error('nestedData is undefined');
+        return { data: [], pagination: {}, meta: {} };
+      }
+
+      // Extract items from nestedData.data.items
+      const items = nestedData.data?.items || nestedData.items || [];
+      const pagination = nestedData.data?.pagination || nestedData.pagination || {};
+
+      return {
+        data: items,
+        pagination: pagination,
+        meta: pagination
+      };
     }
 
-    return null;
+    console.error('Invalid response status:', response.data);
+    return { data: [], pagination: {}, meta: {} };
   } catch (error) {
     console.error('Error fetching products data:', error.message);
-    return null;
+    console.error('Error details:', error.response?.data);
+    return { data: [], pagination: {}, meta: {} };
   }
 }
 
@@ -73,8 +91,8 @@ async function getFiltersData() {
     });
 
     return {
-      categories: categoriesResponse.data?.data || [],
-      brands: brandsResponse.data?.data || []
+      categories: categoriesResponse.data?.data?.items || categoriesResponse.data?.data || [],
+      brands: brandsResponse.data?.data?.items || brandsResponse.data?.data || []
     };
   } catch (error) {
     console.error('Error fetching filters data:', error.message);

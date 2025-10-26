@@ -1,103 +1,208 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { axiosInstance } from '@/utils/axiosInstance';
 
 const initialState = {
-  items: [
-    {
-      id: 1,
-      variant: {
-        id: 'v1',
-        product: {
-          id: 'p1',
-          title: 'Mountain Bike Pro',
-          primary_image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&h=500&fit=crop',
-        },
-        attributes: { color: 'Red', size: 'Medium' },
-        price: 599.99,
-        sale_price: 499.99,
-        is_available: true,
-      },
-      quantity: 2,
-      total: 999.98,
-    },
-    {
-      id: 2,
-      variant: {
-        id: 'v2',
-        product: {
-          id: 'p2',
-          title: 'Bike Helmet Safety Plus',
-          primary_image: 'https://images.unsplash.com/photo-1578496781457-a4b3b0e60b6a?w=500&h=500&fit=crop',
-        },
-        attributes: { color: 'Black', size: 'Large' },
-        price: 89.99,
-        sale_price: 69.99,
-        is_available: true,
-      },
-      quantity: 1,
-      total: 69.99,
-    },
-    {
-      id: 3,
-      variant: {
-        id: 'v3',
-        product: {
-          id: 'p3',
-          title: 'Bike Chain Lubricant',
-          primary_image: 'https://images.unsplash.com/photo-1559163499-fe8d86f76b23?w=500&h=500&fit=crop',
-        },
-        attributes: { type: 'Synthetic', volume: '500ml' },
-        price: 24.99,
-        sale_price: null,
-        is_available: true,
-      },
-      quantity: 3,
-      total: 74.97,
-    },
-  ],
+  cart: null, // Full cart object from API
+  loading: false,
+  error: null,
 };
+
+// Thunk for fetching cart data
+export const fetchCart = createAsyncThunk(
+  'cart/fetchCart',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get('/cart/');
+      if (!response?.data?.status) {
+        throw new Error('Invalid cart data');
+      }
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Thunk for adding item to cart
+export const addToCart = createAsyncThunk(
+  'cart/addToCart',
+  async ({ variant_id, product_id, quantity }, { rejectWithValue }) => {
+    try {
+      // Validate that only one of variant_id or product_id is provided
+      if (variant_id && product_id) {
+        return rejectWithValue({
+          message: 'Cannot provide both variant_id and product_id',
+          data: {
+            errors: {
+              error: ['Cannot provide both variant_id and product_id']
+            }
+          }
+        });
+      }
+
+      if (!variant_id && !product_id) {
+        return rejectWithValue({
+          message: 'Either variant_id or product_id is required',
+          data: {
+            errors: {
+              error: ['Either variant_id or product_id is required']
+            }
+          }
+        });
+      }
+
+      const payload = { quantity };
+      if (variant_id) {
+        payload.variant_id = variant_id;
+      } else {
+        payload.product_id = product_id;
+      }
+
+      const response = await axiosInstance.post('/cart/items/', payload);
+      
+      if (!response?.data?.status) {
+        return rejectWithValue(response.data);
+      }
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Thunk for updating cart item quantity
+export const updateCartItem = createAsyncThunk(
+  'cart/updateCartItem',
+  async ({ itemId, quantity }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.patch(`/cart/items/${itemId}/`, {
+        quantity,
+      });
+      if (!response?.data?.status) {
+        return rejectWithValue(response.data);
+      }
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Thunk for removing item from cart
+export const removeFromCart = createAsyncThunk(
+  'cart/removeFromCart',
+  async (itemId, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.delete(`/cart/items/${itemId}/`);
+      if (!response?.data?.status) {
+        return rejectWithValue(response.data);
+      }
+      return { itemId, data: response.data };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Thunk for clearing cart
+export const clearCart = createAsyncThunk(
+  'cart/clearCart',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.delete('/cart/clear/');
+      if (!response?.data?.status) {
+        return rejectWithValue(response.data);
+      }
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 
 const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    addToCart: (state, action) => {
-      const { variant, quantity } = action.payload;
-      const existingItem = state.items.find(
-        (item) => item.variant.id === variant.id
-      );
-
-      if (existingItem) {
-        existingItem.quantity += quantity;
-        existingItem.total = existingItem.quantity * (variant.sale_price || variant.price);
-      } else {
-        state.items.push({
-          id: Date.now(),
-          variant,
-          quantity,
-          total: quantity * (variant.sale_price || variant.price),
-        });
-      }
+    setCart(state, action) {
+      state.cart = action.payload;
     },
-
-    updateQuantity: (state, action) => {
-      const { itemId, quantity } = action.payload;
-      const item = state.items.find((item) => item.id === itemId);
-
-      if (item && quantity > 0) {
-        item.quantity = quantity;
-        item.total = quantity * (item.variant.sale_price || item.variant.price);
-      }
+    clearCartState(state) {
+      state.cart = null;
+      state.error = null;
     },
-
-    removeFromCart: (state, action) => {
-      state.items = state.items.filter((item) => item.id !== action.payload);
-    },
-
-    clearCart: (state) => {
-      state.items = [];
-    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // Fetch cart
+      .addCase(fetchCart.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCart.fulfilled, (state, action) => {
+        state.loading = false;
+        state.cart = action.payload;
+      })
+      .addCase(fetchCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
+      // Add to cart
+      .addCase(addToCart.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addToCart.fulfilled, (state, action) => {
+        state.loading = false;
+        // Refresh cart after adding item
+      })
+      .addCase(addToCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
+      // Update cart item
+      .addCase(updateCartItem.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateCartItem.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(updateCartItem.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
+      // Remove from cart
+      .addCase(removeFromCart.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(removeFromCart.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(removeFromCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
+      // Clear cart
+      .addCase(clearCart.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(clearCart.fulfilled, (state, action) => {
+        state.loading = false;
+        state.cart = null;
+      })
+      .addCase(clearCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 
-export const { addToCart, updateQuantity, removeFromCart, clearCart } = cartSlice.actions;
+export const { setCart, clearCartState } = cartSlice.actions;
 export default cartSlice.reducer;

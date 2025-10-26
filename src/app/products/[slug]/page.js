@@ -1,14 +1,33 @@
+import { cookies } from 'next/headers';
 import ProductDetailsPage from '@/components/products/ProductDetailsPage';
-import { productsData } from '@/data/products-complete';
+import { axiosInstance } from '@/utils/axiosInstance';
 
-export async function generateStaticParams() {
-  return productsData.map((product) => ({
-    slug: product.slug,
-  }));
+// Fetch product data server-side
+async function getProductData(slug) {
+  try {
+    // Get token from cookies (server-side)
+    const cookieStore = await cookies();
+    const token = cookieStore.get('user_token')?.value;
+    
+    // Make request with token in headers
+    const response = await axiosInstance.get(`/products/${slug}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    });
+    
+    if (response.data && response.data.status) {
+      return response.data.data;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching product data:', error.message);
+    return null;
+  }
 }
 
 export async function generateMetadata({ params }) {
-  const product = productsData.find((p) => p.slug === params.slug);
+  const { slug } = await params;
+  const product = await getProductData(slug);
 
   if (!product) {
     return {
@@ -23,18 +42,36 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: product.title,
       description: product.description,
-      images: [
+      images: product.images?.length > 0 ? [
         {
-          url: product.image,
+          url: product.images[0].image,
           width: 800,
           height: 600,
-          alt: product.title,
+          alt: product.images[0].alt_text || product.title,
         },
-      ],
+      ] : [],
     },
   };
 }
 
-export default function ProductPage({ params }) {
-  return <ProductDetailsPage slug={params.slug} />;
+export default async function ProductPage({ params }) {
+  const { slug } = await params;
+  const productData = await getProductData(slug);
+  
+  if (!productData) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4" style={{ color: 'var(--neutral-gray900)' }}>
+            Product Not Found
+          </h1>
+          <p style={{ color: 'var(--neutral-gray700)' }}>
+            The product you're looking for doesn't exist or has been removed.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return <ProductDetailsPage productData={productData} />;
 }

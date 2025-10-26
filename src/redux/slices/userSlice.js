@@ -12,11 +12,11 @@ export const fetchUserData = createAsyncThunk(
   'user/fetchUserData',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get('/profile');
-      if (!response?.data?.data?.user) {
+      const response = await axiosInstance.get('/auth/profile');
+      if (!response?.data?.status) {
         throw new Error('Invalid user data');
       }
-      return response.data.data.user;
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }

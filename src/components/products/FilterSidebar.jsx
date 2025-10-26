@@ -17,6 +17,8 @@ const FilterSidebar = ({
     brand: false,
   });
 
+  
+
   const toggleSection = (section) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -114,6 +116,7 @@ const FilterSidebar = ({
               </h3>
               <ChevronDown
                 size={20}
+                className='text-gray-800'
                 style={{
                   transform: expandedSections.price ? 'rotate(0deg)' : 'rotate(-90deg)',
                   transition: 'transform 300ms',
@@ -162,6 +165,7 @@ const FilterSidebar = ({
               </h3>
               <ChevronDown
                 size={20}
+                className='text-gray-800'
                 style={{
                   transform: expandedSections.category ? 'rotate(0deg)' : 'rotate(-90deg)',
                   transition: 'transform 300ms',
@@ -202,6 +206,7 @@ const FilterSidebar = ({
               </h3>
               <ChevronDown
                 size={20}
+                className='text-gray-800'
                 style={{
                   transform: expandedSections.brand ? 'rotate(0deg)' : 'rotate(-90deg)',
                   transition: 'transform 300ms',

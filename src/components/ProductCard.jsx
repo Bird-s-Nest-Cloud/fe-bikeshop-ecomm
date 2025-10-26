@@ -24,7 +24,7 @@ const ProductCard = ({ product }) => {
   return (
     <Link href={productDetailsUrl}>
       <div 
-        className="rounded-lg overflow-hidden shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group h-full flex flex-col"
+        className="relative rounded-lg overflow-hidden shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer group h-full flex flex-col"
         style={{ backgroundColor: 'var(--neutral-white)' }}
       >
         {/* Badge */}

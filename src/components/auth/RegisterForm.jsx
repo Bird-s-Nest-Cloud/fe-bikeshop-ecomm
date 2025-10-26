@@ -1,36 +1,115 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
+import { axiosInstance } from '@/utils/axiosInstance';
+import Cookies from 'js-cookie';
+import { toast } from 'react-toastify';
 
 export default function RegisterForm() {
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    password: ''
+  });
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear field error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Registration submitted:', { fullName, email, phone, password });
+    setIsLoading(true);
+    setErrors({});
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('email', formData.email);
+      formDataToSend.append('phone', formData.phone);
+      formDataToSend.append('password', formData.password);
+
+      const response = await axiosInstance.post('/auth/register/', formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.data.status) {
+        // Store token in cookies
+        Cookies.set('user_token', response.data.data.token, { expires: 365 });
+        
+        // Show success message
+        toast.success(response.data.message || 'Registration successful!');
+        
+        // Redirect to home or dashboard
+        setTimeout(() => {
+          router.push('/');
+        }, 1000);
+      }
+    } catch (error) {
+      setIsLoading(false);
+      
+      if (error.response?.data) {
+        const { status, status_code, message, data } = error.response.data;
+        
+        if (!status) {
+          // Handle field-specific errors (400)
+          if (status_code === 400 && data?.errors) {
+            setErrors(data.errors);
+            toast.error(message || 'Please fix the errors below');
+          }
+          // Handle general errors
+          else if (data?.errors?.detail) {
+            toast.error(data.errors.detail[0] || message);
+          } else {
+            toast.error(message || 'Registration failed');
+          }
+        }
+      } else {
+        toast.error('Network error. Please try again.');
+      }
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Full Name Field */}
       <div>
-        <label htmlFor="fullName" className="block text-sm font-medium text-gray-900 mb-2">
+        <label htmlFor="name" className="block text-sm font-medium text-gray-900 mb-2">
           Full Name
         </label>
         <input
-          id="fullName"
+          id="name"
+          name="name"
           type="text"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
+          value={formData.name}
+          onChange={handleChange}
           placeholder="John Doe"
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+          disabled={isLoading}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         />
+        {errors.name && (
+          <p className="mt-1 text-sm text-red-600">{errors.name[0]}</p>
+        )}
       </div>
 
       {/* Email Field */}
@@ -40,13 +119,18 @@ export default function RegisterForm() {
         </label>
         <input
           id="email"
+          name="email"
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={formData.email}
+          onChange={handleChange}
           placeholder="you@example.com"
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+          disabled={isLoading}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         />
+        {errors.email && (
+          <p className="mt-1 text-sm text-red-600">{errors.email[0]}</p>
+        )}
       </div>
 
       {/* Phone Field */}
@@ -56,13 +140,18 @@ export default function RegisterForm() {
         </label>
         <input
           id="phone"
+          name="phone"
           type="tel"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          placeholder="+1 (555) 000-0000"
+          value={formData.phone}
+          onChange={handleChange}
+          placeholder="01712345678"
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+          disabled={isLoading}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         />
+        {errors.phone && (
+          <p className="mt-1 text-sm text-red-600">{errors.phone[0]}</p>
+        )}
       </div>
 
       {/* Password Field */}
@@ -73,17 +162,20 @@ export default function RegisterForm() {
         <div className="relative">
           <input
             id="password"
+            name="password"
             type={showPassword ? 'text' : 'password'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={formData.password}
+            onChange={handleChange}
             placeholder="••••••••"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all pr-12"
+            disabled={isLoading}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all pr-12 disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+            disabled={isLoading}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50"
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
             {showPassword ? (
@@ -93,14 +185,18 @@ export default function RegisterForm() {
             )}
           </button>
         </div>
+        {errors.password && (
+          <p className="mt-1 text-sm text-red-600">{errors.password[0]}</p>
+        )}
       </div>
 
       {/* Submit Button */}
       <button
         type="submit"
-        className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
+        disabled={isLoading}
+        className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Create Account
+        {isLoading ? 'Creating Account...' : 'Create Account'}
       </button>
     </form>
   );

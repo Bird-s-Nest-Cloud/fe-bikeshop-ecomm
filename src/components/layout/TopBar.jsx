@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
+import Cookies from 'js-cookie';
 
 /**
  * TopBar Component
@@ -14,7 +15,7 @@ import Link from 'next/link';
  * Responsive: Hidden on mobile, shown on desktop
  */
 
-const TopBar = ({ topbarData }) => {
+const TopBar = ({ topbarData, user }) => {
   return (
     <div
       className="hidden sm:flex items-center justify-between px-4 md:px-6 lg:px-12 py-2 bg-[--primary-main] text-white border-b border-[--primary-light]"
@@ -38,6 +39,44 @@ const TopBar = ({ topbarData }) => {
               {link.label}
             </Link>
           ))}
+
+          {/* My Account logic */}
+          {user ? (
+            <div className="relative group">
+              <button
+                className="text-xs text-white hover:text-orange-400 transition-colors no-underline flex items-center gap-1 focus:outline-none"
+              >
+                My Account
+                <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div className="absolute left-0 min-w-[120px] bg-white text-gray-900 rounded shadow-lg z-500 opacity-0 group-hover:opacity-100 group-hover:visible invisible transition-opacity">
+                <Link
+                  href="/my-account"
+                  className="block px-4 py-2 text-xs hover:bg-gray-100 no-underline"
+                >
+                  Profile
+                </Link>
+                <button
+                  onClick={() => {
+                    Cookies.remove('user_token');
+                    window.location.reload();
+                  }}
+                  className="block w-full text-left px-4 py-2 text-xs hover:bg-gray-100 text-red-600"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="text-xs text-white hover:text-orange-400 transition-colors no-underline"
+            >
+              My Account
+            </Link>
+          )}
         </div>
       </div>
 

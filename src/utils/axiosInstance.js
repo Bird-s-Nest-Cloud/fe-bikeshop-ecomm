@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 const axiosInstance = axios.create({
   baseURL: "http://localhost:8000/api",
   timeout: 50000,
+  withCredentials: true, // Enable sending cookies with requests
 });
 
 // Add a request interceptor to set the Authorization header

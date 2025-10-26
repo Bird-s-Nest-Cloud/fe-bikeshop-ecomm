@@ -1,9 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { designConfig } from '@/config/design-config';
 import TopBar from './TopBar';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUserData } from '@/redux/slices/userSlice';
+import { fetchCart } from '@/redux/slices/cartSlice';
 
 /**
  * Header Component with TopBar
@@ -16,6 +19,19 @@ import TopBar from './TopBar';
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.user);
+  const cart = useSelector((state) => state.cart.cart);
+  
+  // Handle both nested (summary.total_items) and flat (total_items) structure
+  const cartItemsCount = cart?.summary?.total_items || cart?.total_items || 0;
+
+
+  useEffect(() => {
+    // Fetch user profile and cart data
+    dispatch(fetchUserData());
+    dispatch(fetchCart());
+  }, [dispatch]);
 
   const categories = [
       { label: "Helmets", image: "/images/categories/helmets.jpg", href: "/c/helmets" },
@@ -29,8 +45,7 @@ const Header = () => {
       welcomeText: "Welcome to GearX Bangladesh",
       links: [
         { label: "GearX Bangladesh Warranty Policy", href: "/warranty-policy" },
-        { label: "Authorized Dealer List", href: "/dealers" },
-        { label: "My account", href: "/account" }
+        { label: "Authorized Dealer List", href: "/dealers" }
       ],
       support: {
         icon: "headset",
@@ -69,7 +84,7 @@ const Header = () => {
   return (
     <>
       {/* TopBar Section */}
-      <TopBar topbarData={headerData.topbar} />
+      <TopBar topbarData={headerData.topbar} user={user}/>
 
       {/* Main Navigation */}
       <nav
@@ -186,7 +201,7 @@ const Header = () => {
               <span
                 className="absolute -top-2 -right-2 w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center bg-[#ff6b35] text-white"
               >
-                0
+                {cartItemsCount}
               </span>
             </Link>
           </div>
@@ -219,7 +234,7 @@ const Header = () => {
             <span
               className="absolute -top-2 -right-2 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center bg-[#ff6b35] text-white"
             >
-              0
+              {cartItemsCount}
             </span>
           </Link>
         </div>

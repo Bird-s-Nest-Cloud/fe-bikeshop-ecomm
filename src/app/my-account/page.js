@@ -6,9 +6,11 @@ import ProfileSection from '@/components/account/ProfileSection';
 import ChangePasswordSection from '@/components/account/ChangePasswordSection';
 import AddressSection from '@/components/account/AddressSection';
 import OrdersSection from '@/components/account/OrdersSection';
+import { useSelector } from 'react-redux';
 
 export default function MyAccountPage() {
   const [activeSection, setActiveSection] = useState('profile');
+  const user = useSelector((state) => state.user.user);
 
   const renderSection = () => {
     switch (activeSection) {

@@ -12,6 +12,7 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }) {
     postalCode: '',
     country: '',
     phone: '',
+    addressType: 'billing',
   });
 
   useEffect(() => {
@@ -26,6 +27,7 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }) {
         postalCode: '',
         country: '',
         phone: '',
+        addressType: 'billing',
       });
     }
   }, [initialData, isOpen]);
@@ -179,6 +181,23 @@ export default function AddressModal({ isOpen, onClose, onSave, initialData }) {
               placeholder="+1 (555) 000-0000"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             />
+          </div>
+
+          {/* Address Type */}
+          <div>
+            <label htmlFor="addressType" className="block text-sm font-medium text-gray-700 mb-1">
+              Address Type
+            </label>
+            <select
+              id="addressType"
+              name="addressType"
+              value={formData.addressType}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            >
+              <option value="billing">Billing</option>
+              <option value="shipping">Shipping</option>
+            </select>
           </div>
 
           {/* Buttons */}

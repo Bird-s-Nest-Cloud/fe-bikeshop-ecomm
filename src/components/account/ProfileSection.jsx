@@ -1,14 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { axiosInstance } from '@/utils/axiosInstance';
+import { fetchUserData } from '@/redux/slices/userSlice';
+import { toast } from 'react-toastify';
 
 export default function ProfileSection() {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.user);
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  // Format date_joined to readable format
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  };
+
   const [formData, setFormData] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '+1 (555) 123-4567',
-    dateJoined: 'January 15, 2023',
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    dateJoined: formatDate(user?.date_joined),
   });
 
   const [editData, setEditData] = useState({
@@ -16,19 +32,80 @@ export default function ProfileSection() {
     phone: formData.phone,
   });
 
+  // Update formData when user data changes
+  useEffect(() => {
+    if (user) {
+      const updatedFormData = {
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        dateJoined: formatDate(user.date_joined),
+      };
+      setFormData(updatedFormData);
+      setEditData({
+        name: updatedFormData.name,
+        phone: updatedFormData.phone,
+      });
+    }
+  }, [user]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditData((prev) => ({ ...prev, [name]: value }));
+    // Clear field error when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: null }));
+    }
   };
 
-  const handleSave = () => {
-    setFormData((prev) => ({
-      ...prev,
-      name: editData.name,
-      phone: editData.phone,
-    }));
-    setIsEditing(false);
-    console.log('Profile updated:', editData);
+  const handleSave = async () => {
+    setIsLoading(true);
+    setErrors({});
+
+    try {
+      const formData = new FormData();
+      formData.append('name', editData.name);
+      formData.append('phone', editData.phone);
+
+      const response = await axiosInstance.patch('/auth/profile/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.data.status) {
+        // Update local state
+        setFormData((prev) => ({
+          ...prev,
+          name: editData.name,
+          phone: editData.phone,
+        }));
+        
+        // Refresh user data in Redux
+        dispatch(fetchUserData());
+        
+        setIsEditing(false);
+        toast.success(response.data.message || 'Profile updated successfully!');
+      }
+    } catch (error) {
+      if (error.response?.data) {
+        const { status, status_code, message, data } = error.response.data;
+        
+        if (!status) {
+          // Handle field-specific errors (400)
+          if (status_code === 400 && data?.errors) {
+            setErrors(data.errors);
+            toast.error(message || 'Please fix the errors below');
+          } else {
+            toast.error(message || 'Failed to update profile');
+          }
+        }
+      } else {
+        toast.error('Network error. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -109,8 +186,12 @@ export default function ProfileSection() {
                   name="name"
                   value={editData.name}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  disabled={isLoading}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-600">{errors.name[0]}</p>
+                )}
               </div>
 
               {/* Email Display (Non-editable) */}
@@ -137,8 +218,12 @@ export default function ProfileSection() {
                   name="phone"
                   value={editData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  disabled={isLoading}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
+                {errors.phone && (
+                  <p className="mt-1 text-sm text-red-600">{errors.phone[0]}</p>
+                )}
               </div>
 
               {/* Date Joined Display (Non-editable) */}
@@ -159,15 +244,17 @@ export default function ProfileSection() {
             <div className="flex gap-4 justify-end mt-8">
               <button
                 onClick={handleCancel}
-                className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium rounded-lg transition-colors"
+                disabled={isLoading}
+                className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
+                disabled={isLoading}
+                className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Save Changes
+                {isLoading ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </div>
