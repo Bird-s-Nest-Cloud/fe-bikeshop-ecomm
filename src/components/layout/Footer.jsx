@@ -13,38 +13,38 @@ const Footer = () => {
 
   const footerData =  {
     id: "footer",
-    logo: "/images/gearx-logo.png",
+    logo: "/images/gearz-logo.png",
     support: {
       headline: "Got Questions? Call us 24/7!",
       phone: "+88-01789-881111",
       address: "House – 183/8, Pirerbag (60 feet Road), Mirpur, Dhaka, Bangladesh",
       socials: [
-        { icon: "facebook", href: "https://facebook.com/gearx" },
-        { icon: "instagram", href: "https://instagram.com/gearx" },
-        { icon: "youtube", href: "https://youtube.com/gearx" }
+        { icon: "facebook", href: "#" },
+        { icon: "instagram", href: "#" },
+        { icon: "youtube", href: "#" }
       ]
     },
     columns: [
       {
         title: "Find It Fast",
         links: [
-          { label: "Helmets", href: "/c/helmets" },
-          { label: "Riding Gears", href: "/c/gears" },
-          { label: "Rain Gear", href: "/c/rain" }
+          { label: "Helmets", href: "#" },
+          { label: "Riding Gears", href: "#" },
+          { label: "Rain Gear", href: "#" }
         ]
       },
       {
         title: "Quick Links",
         links: [
-          { label: "About Us", href: "/about" },
-          { label: "My Account", href: "/account" },
-          { label: "Terms and Conditions", href: "/terms" },
-          { label: "Contact Us", href: "/contact" },
-          { label: "Warranty Policy", href: "/warranty-policy" }
+          { label: "About Us", href: "#" },
+          { label: "My Account", href: "#" },
+          { label: "Terms and Conditions", href: "#" },
+          { label: "Contact Us", href: "#" },
+          { label: "Warranty Policy", href: "#" }
         ]
       }
     ],
-    copyright: "© GearX Bangladesh - All Rights Reserved"
+    copyright: "© GearZ Bangladesh - All Rights Reserved"
   }
 
   const support = footerData?.support;

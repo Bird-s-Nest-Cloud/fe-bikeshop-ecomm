@@ -1,5 +1,5 @@
 /**
- * GearX Bangladesh - Design Configuration
+ * GearZ Bangladesh - Design Configuration
  * 
  * This file contains all design tokens including colors, spacing, typography,
  * and other variables used throughout the landing page design.
@@ -8,7 +8,7 @@
  */
 
 export const designConfig = {
-  // Primary Color Palette - GearX Brand Colors
+  // Primary Color Palette - GearZ Brand Colors
   colors: {
     // Primary Colors
     primary: {

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import ImageComponent from '../shared/ImageComponent';
 
 /**
@@ -50,9 +51,10 @@ const BrandsCarousel = ({ brands: brandsArray = [] }) => {
             onMouseLeave={(e) => e.currentTarget.style.animationPlayState = 'running'}
           >
             {duplicatedBrands.map((brand, idx) => (
-              <div
+              <Link
                 key={idx}
-                className="shrink-0 w-[200px] rounded-lg p-8 flex items-center justify-center h-[150px] shadow-sm hover:shadow-lg hover:scale-105 transition-all cursor-pointer"
+                href={brand.href || '/products'}
+                className="shrink-0 w-[200px] rounded-lg p-8 flex items-center justify-center h-[150px] shadow-sm hover:shadow-lg hover:scale-105 transition-all cursor-pointer no-underline"
                 style={{ backgroundColor: 'var(--neutral-white)' }}
               >
                 <div className="relative w-full h-20 flex items-center justify-center">
@@ -71,7 +73,7 @@ const BrandsCarousel = ({ brands: brandsArray = [] }) => {
                     </span>
                   )}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

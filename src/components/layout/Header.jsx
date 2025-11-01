@@ -7,18 +7,22 @@ import TopBar from './TopBar';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserData } from '@/redux/slices/userSlice';
 import { fetchCart } from '@/redux/slices/cartSlice';
+import { axiosInstance } from '@/utils/axiosInstance';
 
 /**
  * Header Component with TopBar
  * 
  * Two-layer header:
  * 1. TopBar - Welcome text, quick links, support info
- * 2. Navigation - Logo, Home, All Products, Category (dropdown), Search, Cart
+ * 2. Navigation - Logo, Home, All Products, Category (dropdown), Brands (dropdown), Search, Cart
  */
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isBrandOpen, setIsBrandOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
   const cart = useSelector((state) => state.cart.cart);
@@ -31,33 +35,63 @@ const Header = () => {
     // Fetch user profile and cart data
     dispatch(fetchUserData());
     dispatch(fetchCart());
-  }, [dispatch]);
+    
+    // Fetch categories and brands
+    fetchCategories();
+    fetchBrands();
 
-  const categories = [
-      { label: "Helmets", image: "/images/categories/helmets.jpg", href: "/c/helmets" },
-      { label: "Riding Gears", image: "/images/categories/riding-gears.jpg", href: "/c/gears" },
-      { label: "Rain Gear", image: "/images/categories/rain-gear.jpg", href: "/c/rain" },
-      { label: "Accessories", image: "/images/categories/accessories.jpg", href: "/c/accessories" }
-    ]
+    // Close dropdowns when clicking outside
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.category-dropdown') && isCategoryOpen) {
+        setIsCategoryOpen(false);
+      }
+      if (!event.target.closest('.brand-dropdown') && isBrandOpen) {
+        setIsBrandOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [dispatch, isCategoryOpen, isBrandOpen]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axiosInstance.get('/categories/');
+      const categoriesData = response.data?.data?.items || response.data?.data || [];
+      setCategories(categoriesData);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchBrands = async () => {
+    try {
+      const response = await axiosInstance.get('/brands/');
+      const brandsData = response.data?.data?.items || response.data?.data || [];
+      setBrands(brandsData);
+    } catch (error) {
+      console.error('Error fetching brands:', error);
+    }
+  };
 
   const headerData = {
     topbar: {
-      welcomeText: "Welcome to GearX Bangladesh",
+      welcomeText: "Welcome to GearZ Bangladesh",
       links: [
-        { label: "GearX Bangladesh Warranty Policy", href: "/warranty-policy" },
-        { label: "Authorized Dealer List", href: "/dealers" }
+        { label: "GearZ Bangladesh Warranty Policy", href: "#" },
+        { label: "Authorized Dealer List", href: "#" }
       ],
       support: {
         icon: "headset",
         phone: "+88-01789-881111",
-        email: "info@gearxbd.com"
+        email: "info@gearzbd.com"
       }
     },
     
     navbar: {
       logo: {
-        src: "/images/gearx-logo.png",
-        alt: "GearX Bangladesh"
+        src: "/images/gearz-logo.png",
+        alt: "GearZ Bangladesh"
       },
       menu: [
         { label: "HOME", href: "/" },
@@ -97,7 +131,7 @@ const Header = () => {
             <h1
               className="text-2xl font-bold text-[#ff6b35] m-0"
             >
-              GearX
+              GearZ
             </h1>
           </Link>
 
@@ -120,12 +154,12 @@ const Header = () => {
             </Link>
 
             {/* Category Dropdown */}
-            <div className="relative group">
+            <div className="relative group category-dropdown">
               <button
                 onClick={() => setIsCategoryOpen(!isCategoryOpen)}
                 className="text-sm font-medium text-gray-900 hover:text-orange-600 transition-colors py-2 bg-transparent border-none cursor-pointer flex items-center gap-2"
               >
-                Category
+                Categories
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -145,18 +179,71 @@ const Header = () => {
                   boxShadow: 'var(--shadow-lg)',
                 }}
               >
-                {categories.map((category, idx) => (
-                  <Link
-                    key={idx}
-                    href={category.href}
-                    className={`block text-sm text-gray-900 py-4 px-6 no-underline hover:bg-gray-100 transition-colors ${
-                      idx < categories.length - 1 ? 'border-b border-gray-200' : ''
-                    }`}
-                    onClick={() => setIsCategoryOpen(false)}
-                  >
-                    {category.label}
-                  </Link>
-                ))}
+                {categories.length > 0 ? (
+                  categories.map((category, idx) => (
+                    <Link
+                      key={category.id || idx}
+                      href={`/products?category=${category.slug}`}
+                      className={`block text-sm text-gray-900 py-4 px-6 no-underline hover:bg-gray-100 transition-colors ${
+                        idx < categories.length - 1 ? 'border-b border-gray-200' : ''
+                      }`}
+                      onClick={() => setIsCategoryOpen(false)}
+                    >
+                      {category.name}
+                    </Link>
+                  ))
+                ) : (
+                  <div className="text-sm text-gray-500 py-4 px-6">
+                    Loading categories...
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Brands Dropdown */}
+            <div className="relative group brand-dropdown">
+              <button
+                onClick={() => setIsBrandOpen(!isBrandOpen)}
+                className="text-sm font-medium text-gray-900 hover:text-orange-600 transition-colors py-2 bg-transparent border-none cursor-pointer flex items-center gap-2"
+              >
+                Brands
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                  />
+                </svg>
+              </button>
+
+              {/* Brands Dropdown Menu */}
+              <div
+                className={`absolute top-full left-0 mt-2 bg-white rounded-md min-w-[200px] z-50 transition-all ${
+                  isBrandOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                }`}
+                style={{
+                  boxShadow: 'var(--shadow-lg)',
+                }}
+              >
+                {brands.length > 0 ? (
+                  brands.map((brand, idx) => (
+                    <Link
+                      key={brand.id || idx}
+                      href={`/products?brand=${brand.slug}`}
+                      className={`block text-sm text-gray-900 py-4 px-6 no-underline hover:bg-gray-100 transition-colors ${
+                        idx < brands.length - 1 ? 'border-b border-gray-200' : ''
+                      }`}
+                      onClick={() => setIsBrandOpen(false)}
+                    >
+                      {brand.name}
+                    </Link>
+                  ))
+                ) : (
+                  <div className="text-sm text-gray-500 py-4 px-6">
+                    Loading brands...
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -253,18 +340,19 @@ const Header = () => {
             </Link>
 
             <Link
-              href="/shop"
+              href="/products"
               className="text-sm font-medium text-gray-900 hover:text-orange-600 no-underline"
               onClick={() => setIsMenuOpen(false)}
             >
               All Products
             </Link>
 
+            {/* Categories in Mobile */}
             <button
               onClick={() => setIsCategoryOpen(!isCategoryOpen)}
               className="text-sm font-medium text-gray-900 hover:text-orange-600 bg-transparent border-none cursor-pointer text-left flex items-center gap-2"
             >
-              Category
+              Categories
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -277,19 +365,61 @@ const Header = () => {
 
             {isCategoryOpen && (
               <div className="pl-6 flex flex-col gap-2">
-                {categories.map((category, idx) => (
-                  <Link
-                    key={idx}
-                    href={category.href}
-                    className="text-sm text-gray-700 hover:text-orange-600 no-underline"
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      setIsCategoryOpen(false);
-                    }}
-                  >
-                    {category.label}
-                  </Link>
-                ))}
+                {categories.length > 0 ? (
+                  categories.map((category, idx) => (
+                    <Link
+                      key={category.id || idx}
+                      href={`/products?category=${category.slug}`}
+                      className="text-sm text-gray-700 hover:text-orange-600 no-underline"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsCategoryOpen(false);
+                      }}
+                    >
+                      {category.name}
+                    </Link>
+                  ))
+                ) : (
+                  <span className="text-sm text-gray-500">Loading...</span>
+                )}
+              </div>
+            )}
+
+            {/* Brands in Mobile */}
+            <button
+              onClick={() => setIsBrandOpen(!isBrandOpen)}
+              className="text-sm font-medium text-gray-900 hover:text-orange-600 bg-transparent border-none cursor-pointer text-left flex items-center gap-2"
+            >
+              Brands
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d={isBrandOpen ? "M5 15l7-7 7 7" : "M19 14l-7 7m0 0l-7-7m7 7V3"}
+                />
+              </svg>
+            </button>
+
+            {isBrandOpen && (
+              <div className="pl-6 flex flex-col gap-2">
+                {brands.length > 0 ? (
+                  brands.map((brand, idx) => (
+                    <Link
+                      key={brand.id || idx}
+                      href={`/products?brand=${brand.slug}`}
+                      className="text-sm text-gray-700 hover:text-orange-600 no-underline"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsBrandOpen(false);
+                      }}
+                    >
+                      {brand.name}
+                    </Link>
+                  ))
+                ) : (
+                  <span className="text-sm text-gray-500">Loading...</span>
+                )}
               </div>
             )}
           </div>

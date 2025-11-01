@@ -37,8 +37,9 @@ export async function generateMetadata({ params }) {
   }
 
   return {
-    title: `${product.title} - GearX Bangladesh`,
+    title: `${product.title} - GearZ Bangladesh`,
     description: product.description,
+    keywords: `${product.title}, ${product.category?.name}, ${product.brand?.name}, bike helmet Bangladesh`,
     openGraph: {
       title: product.title,
       description: product.description,

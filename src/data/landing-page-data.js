@@ -18,8 +18,8 @@ export const landingPageData = {
     topbar: {
       welcomeText: "Welcome to GearX Bangladesh",
       links: [
-        { label: "GearX Bangladesh Warranty Policy", href: "/warranty-policy" },
-        { label: "Authorized Dealer List", href: "/dealers" },
+        { label: "GearX Bangladesh Warranty Policy", href: "#" },
+        { label: "Authorized Dealer List", href: "#" },
         { label: "My account", href: "/account" }
       ],
       support: {

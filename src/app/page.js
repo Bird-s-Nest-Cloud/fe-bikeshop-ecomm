@@ -6,6 +6,19 @@ import NewProducts from '@/components/sections/NewProducts';
 import BrandsCarousel from '@/components/sections/BrandsCarousel';
 import { axiosInstance } from '@/utils/axiosInstance';
 
+export const metadata = {
+  title: 'GearZ Bangladesh - Premium Bike Helmets & Riding Gear | Shop Online',
+  description: 'Shop the best bike helmets, motorcycle gear, and riding accessories in Bangladesh. Authentic branded products from LS2, AGV, MT, Shoei, HJC with warranty. Fast delivery across Dhaka and all over Bangladesh.',
+  keywords: 'bike helmet Bangladesh, motorcycle helmet Dhaka, riding gear, bike accessories, LS2 helmet, AGV helmet, MT helmet, Shoei helmet, HJC helmet, GearZ Bangladesh',
+  authors: [{ name: 'GearZ Bangladesh' }],
+  openGraph: {
+    title: 'GearZ Bangladesh - Premium Bike Helmets & Riding Gear',
+    description: 'Shop authentic branded bike helmets and riding gear with warranty and fast delivery across Bangladesh',
+    type: 'website',
+    locale: 'en_US',
+  },
+};
+
 /**
  * Landing Page Component (Server-Side Rendered)
  * 

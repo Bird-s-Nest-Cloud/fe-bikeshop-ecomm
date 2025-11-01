@@ -3,8 +3,14 @@ import ProductsPage from '@/components/products/ProductsPage';
 import { axiosInstance } from '@/utils/axiosInstance';
 
 export const metadata = {
-  title: 'All Products - GearX Bangladesh',
-  description: 'Browse all bike helmets, riding gear, and accessories from GearX Bangladesh',
+  title: 'All Products - GearZ Bangladesh | Helmets, Riding Gear & Accessories',
+  description: 'Browse our complete collection of premium bike helmets, riding gear, and motorcycle accessories. Shop authentic branded products with warranty and fast delivery across Bangladesh.',
+  keywords: 'bike helmets, motorcycle gear, riding accessories, helmet brands Bangladesh',
+  openGraph: {
+    title: 'All Products - GearZ Bangladesh',
+    description: 'Browse premium bike helmets, riding gear, and motorcycle accessories',
+    type: 'website',
+  },
 };
 
 /**

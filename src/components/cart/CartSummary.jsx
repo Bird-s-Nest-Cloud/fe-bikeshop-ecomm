@@ -4,10 +4,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clearCart, fetchCart } from '@/redux/slices/cartSlice';
 import { toast } from 'react-toastify';
 import { ShoppingCart } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function CartSummary({ summary }) {
   const dispatch = useDispatch();
   const loading = useSelector((state) => state.cart.loading);
+  const router = useRouter();
 
   if (!summary) {
     return null;
@@ -16,7 +18,7 @@ export default function CartSummary({ summary }) {
   const subtotal = parseFloat(summary.subtotal || 0);
   const totalSavings = parseFloat(summary.total_savings || 0);
   const tax = parseFloat(summary.tax || 0);
-  const shipping = parseFloat(summary.shipping || 0);
+  // const shipping = parseFloat(summary.shipping || 0);
   const grandTotal = parseFloat(summary.grand_total || 0);
   const totalItems = summary.total_items || 0;
 
@@ -63,12 +65,12 @@ export default function CartSummary({ summary }) {
         )}
 
         {/* Shipping */}
-        <div className="flex justify-between items-center text-gray-600">
+        {/* <div className="flex justify-between items-center text-gray-600">
           <span>Shipping</span>
           <span className="font-semibold text-green-600">
             {shipping > 0 ? `৳${shipping.toFixed(2)}` : 'FREE'}
           </span>
-        </div>
+        </div> */}
 
         {/* Tax */}
         {tax > 0 && (
@@ -94,7 +96,7 @@ export default function CartSummary({ summary }) {
 
       {/* Buttons */}
       <div className="space-y-3">
-        <button className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 text-lg">
+        <button onClick={() => router.push('/checkout')} className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 text-lg">
           Proceed to Checkout
         </button>
         <button
@@ -107,9 +109,7 @@ export default function CartSummary({ summary }) {
       </div>
 
       {/* Info */}
-      <p className="text-center text-xs text-gray-500 mt-4">
-        Free shipping on orders over ৳5000
-      </p>
+     
     </div>
   );
 }

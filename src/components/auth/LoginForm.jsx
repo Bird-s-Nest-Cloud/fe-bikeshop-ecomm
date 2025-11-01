@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 
 export default function LoginForm() {
   const router = useRouter();
+  
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -16,6 +17,9 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,7 +59,7 @@ export default function LoginForm() {
         // Show success message
         toast.success(response.data.message || 'Login successful!');
         
-        // Redirect to home or dashboard
+        // Redirect to home page
         setTimeout(() => {
           window.location.href = '/';
         }, 1000);
@@ -84,6 +88,90 @@ export default function LoginForm() {
       }
     }
   };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setIsSendingEmail(true);
+    setErrors({});
+
+    try {
+      const response = await axiosInstance.post('/auth/forgot-password/', {
+        email: forgotPasswordEmail,
+      });
+
+      if (response.data.status) {
+        toast.success(response.data.message || 'Password reset link sent to your email!');
+        setShowForgotPassword(false);
+        setForgotPasswordEmail('');
+      }
+    } catch (error) {
+      if (error.response?.data) {
+        const { message, data } = error.response.data;
+        
+        if (data?.errors?.email) {
+          toast.error(data.errors.email[0]);
+        } else {
+          toast.error(message || 'Failed to send reset email');
+        }
+      } else {
+        toast.error('Network error. Please try again.');
+      }
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
+  if (showForgotPassword) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Forgot Password</h3>
+          <p className="text-sm text-gray-600">
+            Enter your email address and we'll send you a link to reset your password.
+          </p>
+        </div>
+        
+        <form onSubmit={handleForgotPassword} className="space-y-4">
+          <div>
+            <label htmlFor="forgotEmail" className="block text-sm font-medium text-gray-900 mb-2">
+              Email Address
+            </label>
+            <input
+              id="forgotEmail"
+              type="email"
+              value={forgotPasswordEmail}
+              onChange={(e) => setForgotPasswordEmail(e.target.value)}
+              placeholder="you@example.com"
+              required
+              disabled={isSendingEmail}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all disabled:opacity-50"
+            />
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setShowForgotPassword(false);
+                setForgotPasswordEmail('');
+              }}
+              disabled={isSendingEmail}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+            >
+              Back to Login
+            </button>
+            <button
+              type="submit"
+              disabled={isSendingEmail}
+              className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50"
+            >
+              {isSendingEmail ? 'Sending...' : 'Send Reset Link'}
+            </button>
+          </div>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -142,6 +230,17 @@ export default function LoginForm() {
         {errors.password && (
           <p className="mt-1 text-sm text-red-600">{errors.password[0]}</p>
         )}
+      </div>
+
+      {/* Forgot Password Link */}
+      <div className="text-right">
+        <button
+          type="button"
+          onClick={() => setShowForgotPassword(true)}
+          className="text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"
+        >
+          Forgot Password?
+        </button>
       </div>
 
       {/* Submit Button */}

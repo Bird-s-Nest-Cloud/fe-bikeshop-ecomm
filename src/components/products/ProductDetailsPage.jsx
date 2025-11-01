@@ -153,6 +153,71 @@ const ProductDetailsPage = ({ productData }) => {
     setQuantity(newQuantity);
   };
 
+  const handleBuyNow = async () => {
+    // For products with variants, ensure a valid variant is selected
+    if (hasVariants && !currentVariant) {
+      toast.error('Please select a valid variant combination');
+      return;
+    }
+    
+    try {
+      let payload = { quantity };
+
+      if (hasVariants) {
+        // Product has variants - use variant_id
+        const variantId = currentVariant?.id;
+        if (!variantId) {
+          toast.error('Product variant not available');
+          return;
+        }
+        payload.variant_id = variantId;
+      } else {
+        // Product has no variants - use product_id
+        if (!productData.id) {
+          toast.error('Product not available');
+          return;
+        }
+        payload.product_id = productData.id;
+      }
+
+      const result = await dispatch(addToCart(payload)).unwrap();
+
+      if (result.status) {
+        toast.success('Redirecting to checkout...');
+        
+        // Redirect to checkout page
+        setTimeout(() => {
+          window.location.href = '/checkout';
+        }, 500);
+      }
+    } catch (error) {
+      console.error('Buy now error:', error);
+      
+      if (error?.data?.errors) {
+        const errors = error.data.errors;
+        
+        // Show field-specific errors
+        if (errors.variant_id) {
+          toast.error(errors.variant_id[0]);
+        } else if (errors.product_id) {
+          toast.error(errors.product_id[0]);
+        } else if (errors.variant_required) {
+          toast.error(errors.variant_required[0]);
+        } else if (errors.quantity) {
+          toast.error(errors.quantity[0]);
+        } else if (errors.stock) {
+          toast.error(errors.stock[0]);
+        } else if (errors.error) {
+          toast.error(errors.error[0]);
+        } else {
+          toast.error(error.message || 'Failed to process your request');
+        }
+      } else {
+        toast.error(error.message || 'Failed to process your request');
+      }
+    }
+  };
+
   // Prepare images for gallery (ImageGallery expects array of URLs)
   const galleryImages = productData.images?.map(img => img.image) || [];
 
@@ -317,7 +382,8 @@ const ProductDetailsPage = ({ productData }) => {
 
             {/* Buy Now Button */}
             <button
-              disabled={(hasVariants && !currentVariant) || !isInStock}
+              onClick={handleBuyNow}
+              disabled={(hasVariants && !currentVariant) || !isInStock || cartLoading}
               className="w-full py-3 px-6 rounded-lg font-semibold text-white border border-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
               style={{
                 backgroundColor: 'var(--neutral-white)',
@@ -325,7 +391,7 @@ const ProductDetailsPage = ({ productData }) => {
                 borderColor: 'var(--neutral-gray300)',
               }}
             >
-              Buy Now
+              {cartLoading ? 'Processing...' : 'Buy Now'}
             </button>
 
             {/* Shipping & Return Info */}
