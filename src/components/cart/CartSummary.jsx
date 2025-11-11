@@ -53,14 +53,14 @@ export default function CartSummary({ summary }) {
         {/* Subtotal */}
         <div className="flex justify-between items-center">
           <span className="text-gray-600">Subtotal ({totalItems} items)</span>
-          <span className="font-semibold text-gray-900">৳{subtotal.toFixed(2)}</span>
+          <span className="font-semibold text-gray-900">Tk. {subtotal.toFixed(2)}</span>
         </div>
 
         {/* Savings */}
         {totalSavings > 0 && (
           <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
             <span className="text-green-700 font-medium">Total Savings</span>
-            <span className="font-semibold text-green-700">-৳{totalSavings.toFixed(2)}</span>
+            <span className="font-semibold text-green-700">-Tk. {totalSavings.toFixed(2)}</span>
           </div>
         )}
 
@@ -68,7 +68,7 @@ export default function CartSummary({ summary }) {
         {/* <div className="flex justify-between items-center text-gray-600">
           <span>Shipping</span>
           <span className="font-semibold text-green-600">
-            {shipping > 0 ? `৳${shipping.toFixed(2)}` : 'FREE'}
+            {shipping > 0 ? `Tk. ${shipping.toFixed(2)}` : 'FREE'}
           </span>
         </div> */}
 
@@ -76,7 +76,7 @@ export default function CartSummary({ summary }) {
         {tax > 0 && (
           <div className="flex justify-between items-center text-gray-600">
             <span>Tax</span>
-            <span className="font-semibold text-gray-900">৳{tax.toFixed(2)}</span>
+            <span className="font-semibold text-gray-900">Tk. {tax.toFixed(2)}</span>
           </div>
         )}
       </div>
@@ -89,7 +89,7 @@ export default function CartSummary({ summary }) {
         <div className="flex justify-between items-center">
           <span className="text-lg font-bold text-gray-900">Grand Total</span>
           <span className="text-3xl font-bold text-orange-600">
-            ৳{grandTotal.toFixed(2)}
+            Tk. {grandTotal.toFixed(2)}
           </span>
         </div>
       </div>

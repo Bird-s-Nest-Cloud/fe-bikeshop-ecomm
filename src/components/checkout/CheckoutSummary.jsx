@@ -46,11 +46,11 @@ export default function CheckoutSummary({ cart }) {
                   </p>
                 )} */}
                 <p style={{ color: 'var(--neutral-gray700)' }}>
-                  Qty: {itemQuantity} × ${itemPrice.toFixed(2)}
+                  Qty: {itemQuantity} × Tk. {itemPrice.toFixed(2)}
                 </p>
               </div>
               <div className="text-right font-medium" style={{ color: 'var(--primary-main)' }}>
-                ${itemTotal.toFixed(2)}
+                Tk. {itemTotal.toFixed(2)}
               </div>
             </div>
           );
@@ -61,14 +61,14 @@ export default function CheckoutSummary({ cart }) {
       <div className="space-y-2 text-sm mb-4">
         <div className="flex justify-between" style={{ color: 'var(--neutral-gray700)' }}>
           <span>Subtotal</span>
-          <span>${(subtotal).toFixed(2)}</span>
+          <span>Tk. {(subtotal).toFixed(2)}</span>
         </div>
 
         {/* Show savings as informational only - not deducted from total */}
         {savings > 0 && (
           <div className="flex justify-between py-2 px-3 rounded" style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: 'var(--success)' }}>
             <span className="font-medium">💰 You saved</span>
-            <span className="font-semibold">${(savings).toFixed(2)}</span>
+            <span className="font-semibold">Tk. {(savings).toFixed(2)}</span>
           </div>
         )}
       </div>
@@ -77,7 +77,7 @@ export default function CheckoutSummary({ cart }) {
       <div className="pt-4 flex justify-between items-center" style={{ borderTop: `1px solid var(--neutral-gray400)` }}>
         <span className="font-semibold" style={{ color: 'var(--primary-main)' }}>Total</span>
         <span className="text-2xl font-bold" style={{ color: 'var(--accent-orange)' }}>
-          ${(total).toFixed(2)}
+          Tk. {(total).toFixed(2)}
         </span>
       </div>
 

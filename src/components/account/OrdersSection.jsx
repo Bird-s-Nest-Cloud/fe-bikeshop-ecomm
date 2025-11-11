@@ -140,7 +140,7 @@ export default function OrdersSection() {
                       </div>
                       <div>
                         <p className="text-sm" style={{ color: 'var(--neutral-gray600)' }}>Total</p>
-                        <p className="text-lg" style={{ color: 'var(--primary-main)' }}>${parseFloat(order.total_price).toFixed(2)}</p>
+                        <p className="text-lg" style={{ color: 'var(--primary-main)' }}>Tk. {parseFloat(order.total_price).toFixed(2)}</p>
                       </div>
                       <div>
                         <p className="text-sm" style={{ color: 'var(--neutral-gray600)' }}>Status</p>
@@ -207,9 +207,9 @@ export default function OrdersSection() {
                         <div className="flex-1">
                           <p className="font-medium" style={{ color: 'var(--primary-main)' }}>{item.product_title}</p>
                           {item.variant_attributes && <p className="text-xs" style={{ color: 'var(--neutral-gray600)' }}>{item.variant_attributes}</p>}
-                          <p className="text-sm mt-1" style={{ color: 'var(--neutral-gray700)' }}>Qty: {item.quantity}  ${parseFloat(item.unit_price).toFixed(2)}</p>
+                          <p className="text-sm mt-1" style={{ color: 'var(--neutral-gray700)' }}>Qty: {item.quantity} × Tk. {parseFloat(item.unit_price).toFixed(2)}</p>
                         </div>
-                        <div className="text-right font-semibold" style={{ color: 'var(--primary-main)' }}>${parseFloat(item.subtotal).toFixed(2)}</div>
+                        <div className="text-right font-semibold" style={{ color: 'var(--primary-main)' }}>Tk. {parseFloat(item.subtotal).toFixed(2)}</div>
                       </div>
                     ))}
                   </div>
@@ -228,23 +228,23 @@ export default function OrdersSection() {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span style={{ color: 'var(--neutral-gray700)' }}>Subtotal</span>
-                      <span style={{ color: 'var(--primary-main)' }}>${parseFloat(orderDetails.subtotal).toFixed(2)}</span>
+                      <span style={{ color: 'var(--primary-main)' }}>Tk. {parseFloat(orderDetails.subtotal).toFixed(2)}</span>
                     </div>
                     {orderDetails.discount > 0 && (
                       <div className="flex justify-between">
                         <span style={{ color: 'var(--accent-green)' }}>Discount</span>
-                        <span style={{ color: 'var(--accent-green)' }}>-${parseFloat(orderDetails.discount).toFixed(2)}</span>
+                        <span style={{ color: 'var(--accent-green)' }}>-Tk. {parseFloat(orderDetails.discount).toFixed(2)}</span>
                       </div>
                     )}
                     {orderDetails.shipping_cost > 0 && (
                       <div className="flex justify-between">
                         <span style={{ color: 'var(--neutral-gray700)' }}>Shipping</span>
-                        <span style={{ color: 'var(--primary-main)' }}>+${parseFloat(orderDetails.shipping_cost).toFixed(2)}</span>
+                        <span style={{ color: 'var(--primary-main)' }}>+Tk. {parseFloat(orderDetails.shipping_cost).toFixed(2)}</span>
                       </div>
                     )}
                     <div className="flex justify-between pt-2 border-t font-semibold" style={{ borderColor: 'var(--neutral-gray400)' }}>
                       <span style={{ color: 'var(--primary-main)' }}>Total</span>
-                      <span style={{ color: 'var(--accent-orange)' }}>${parseFloat(orderDetails.total_price).toFixed(2)}</span>
+                      <span style={{ color: 'var(--accent-orange)' }}>Tk. {parseFloat(orderDetails.total_price).toFixed(2)}</span>
                     </div>
                   </div>
                 </div>

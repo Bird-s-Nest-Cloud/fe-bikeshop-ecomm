@@ -273,14 +273,14 @@ const ProductDetailsPage = ({ productData }) => {
               <div className="flex items-center gap-4 mb-6">
                 <div>
                   <span className="text-3xl font-bold" style={{ color: 'var(--accent-orange)' }}>
-                    BDT {parseFloat(currentPrice).toFixed(0)}
+                    Tk. {parseFloat(currentPrice).toFixed(0)}
                   </span>
                   {isOnSale && (
                     <span
                       className="ml-2 text-lg line-through"
                       style={{ color: 'var(--neutral-gray700)' }}
                     >
-                      BDT {parseFloat(originalPrice).toFixed(0)}
+                      Tk. {parseFloat(originalPrice).toFixed(0)}
                     </span>
                   )}
                 </div>
@@ -406,7 +406,7 @@ const ProductDetailsPage = ({ productData }) => {
                   Free Shipping
                 </p>
                 <p style={{ color: 'var(--neutral-gray700)' }} className="text-xs">
-                  On orders over 5,000 BDT
+                  On orders over Tk. 5,000
                 </p>
               </div>
               <div className="text-center">

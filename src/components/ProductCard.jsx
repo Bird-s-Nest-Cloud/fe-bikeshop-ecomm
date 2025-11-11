@@ -59,15 +59,15 @@ const ProductCard = ({ product }) => {
             {hasSale ? (
               <div className="flex items-center gap-2">
                 <span className="text-lg font-bold" style={{ color: 'var(--accent-orange)' }}>
-                  ${productSalePrice.toFixed(2)}
+                  Tk. {parseFloat(productSalePrice).toFixed(2)}
                 </span>
                 <span className="text-sm line-through text-gray-500">
-                  ${productPrice.toFixed(2)}
+                  Tk. {parseFloat(productPrice).toFixed(2)}
                 </span>
               </div>
             ) : (
               <span className="text-lg font-bold" style={{ color: 'var(--accent-orange)' }}>
-                ${productPrice.toFixed(2)}
+                Tk. {parseFloat(productPrice).toFixed(2)}
               </span>
             )}
           </div>

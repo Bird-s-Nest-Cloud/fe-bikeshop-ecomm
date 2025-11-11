@@ -156,18 +156,18 @@ export default function OrderConfirmationPage() {
           <div className="space-y-3 mb-6 pb-6" style={{ borderBottom: `1px solid var(--neutral-gray400)` }}>
             <div className="flex justify-between" style={{ color: 'var(--neutral-gray700)' }}>
               <span>Subtotal</span>
-              <span>${parseFloat(orderData.subtotal).toFixed(2)}</span>
+              <span>Tk. {parseFloat(orderData.subtotal).toFixed(2)}</span>
             </div>
             {orderData.discount > 0 && (
               <div className="flex justify-between" style={{ color: 'var(--accent-green)' }}>
                 <span>Discount</span>
-                <span>-${parseFloat(orderData.discount).toFixed(2)}</span>
+                <span>-Tk. {parseFloat(orderData.discount).toFixed(2)}</span>
               </div>
             )}
             {orderData.shipping_cost > 0 && (
               <div className="flex justify-between" style={{ color: 'var(--neutral-gray700)' }}>
                 <span>Shipping Cost</span>
-                <span>+${parseFloat(orderData.shipping_cost).toFixed(2)}</span>
+                <span>+Tk. {parseFloat(orderData.shipping_cost).toFixed(2)}</span>
               </div>
             )}
             <div className="flex justify-between pt-3" style={{ borderTop: `1px solid var(--neutral-gray400)` }}>
@@ -175,7 +175,7 @@ export default function OrderConfirmationPage() {
                 Total Amount
               </span>
               <span className="text-2xl font-bold" style={{ color: 'var(--accent-orange)' }}>
-                ${parseFloat(orderData.total_price).toFixed(2)}
+                Tk. {parseFloat(orderData.total_price).toFixed(2)}
               </span>
             </div>
           </div>

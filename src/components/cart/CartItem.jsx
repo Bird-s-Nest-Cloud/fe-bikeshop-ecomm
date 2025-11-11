@@ -163,16 +163,16 @@ export default function CartItem({ item }) {
               {/* Prices */}
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-xl font-bold text-gray-900">
-                  ৳{price.toFixed(2)}
+                  Tk. {price.toFixed(2)}
                 </span>
                 {hasSalePrice && (
                   <>
                     <span className="text-lg text-gray-400 line-through">
-                      ৳{originalPrice.toFixed(2)}
+                      Tk. {originalPrice.toFixed(2)}
                     </span>
                     {savings > 0 && (
                       <span className="inline-block px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded">
-                        Save ৳{savings.toFixed(2)}
+                        Save Tk. {savings.toFixed(2)}
                       </span>
                     )}
                   </>
@@ -205,7 +205,7 @@ export default function CartItem({ item }) {
               <div className="text-right">
                 <p className="text-sm text-gray-600">Line Total</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  ৳{totalPrice.toFixed(2)}
+                  Tk. {totalPrice.toFixed(2)}
                 </p>
               </div>
 
