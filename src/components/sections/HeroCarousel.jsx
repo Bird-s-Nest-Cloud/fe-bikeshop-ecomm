@@ -115,12 +115,7 @@ const HeroCarousel = ({ banners = [] }) => {
 
             {/* Content */}
             <div
-              className="absolute inset-0 flex flex-col justify-center items-start"
-              style={{
-                padding: '64px',
-                maxWidth: '600px',
-                zIndex: 3,
-              }}
+              className="absolute inset-0 flex flex-col justify-center items-start p-8 sm:p-[64px] max-w-[600px] z-[3]"
             >
               {/* Headline */}
               <h2
@@ -164,7 +159,7 @@ const HeroCarousel = ({ banners = [] }) => {
       {/* Navigation Buttons - Prev */}
       <button
         onClick={prevSlide}
-        className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full border-none cursor-pointer flex items-center justify-center transition-all hover:shadow-lg z-10"
+        className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-8 sm:w-12 h-8 sm:h-12 rounded-full border-none cursor-pointer flex items-center justify-center transition-all hover:shadow-lg z-10"
         style={{
           backgroundColor: 'rgba(255, 255, 255, 0.8)',
           color: 'var(--primary-main)',
@@ -176,7 +171,7 @@ const HeroCarousel = ({ banners = [] }) => {
       {/* Navigation Buttons - Next */}
       <button
         onClick={nextSlide}
-        className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full border-none cursor-pointer flex items-center justify-center transition-all hover:shadow-lg z-10"
+        className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-8 sm:w-12 h-8 sm:h-12 rounded-full border-none cursor-pointer flex items-center justify-center transition-all hover:shadow-lg z-10"
         style={{
           backgroundColor: 'rgba(255, 255, 255, 0.8)',
           color: 'var(--primary-main)',

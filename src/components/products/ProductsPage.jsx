@@ -199,7 +199,7 @@ const ProductsPage = ({
         </div>
 
         {/* Main Content */}
-        <div className="flex gap-8">
+        <div className="flex lg:gap-8">
           {/* Sidebar */}
           <div className="hidden lg:block w-80 shrink-0 ">
             <FilterSidebar
@@ -228,7 +228,7 @@ const ProductsPage = ({
           <div className="flex-1">
             {products.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {products.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}

@@ -79,7 +79,7 @@ const NewProducts = ({ newSection }) => {
           <div className="w-20 h-1 rounded-full" style={{ backgroundColor: 'var(--accent-orange)' }} />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {products.map((product) => (
             <ProductCard key={product.id || product.slug} product={product} />
           ))}

@@ -48,7 +48,7 @@ const ProductCard = ({ product }) => {
         </div>
 
         {/* Product Info */}
-        <div className="p-6 flex flex-col grow">
+        <div className="p-3 md:p-6 flex flex-col grow">
           {/* Product Title */}
           <h3 className="text-sm font-semibold mb-2 leading-tight min-h-12" style={{ color: 'var(--neutral-gray900)' }}>
             {productName}
@@ -57,7 +57,7 @@ const ProductCard = ({ product }) => {
           {/* Price */}
           <div className="mt-auto">
             {hasSale ? (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <span className="text-lg font-bold" style={{ color: 'var(--accent-orange)' }}>
                   Tk. {parseFloat(productSalePrice).toFixed(2)}
                 </span>

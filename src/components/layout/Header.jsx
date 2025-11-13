@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserData } from '@/redux/slices/userSlice';
 import { fetchCart } from '@/redux/slices/cartSlice';
 import { axiosInstance } from '@/utils/axiosInstance';
+import { ChevronDown } from 'lucide-react';
 
 /**
  * Header Component with TopBar
@@ -39,26 +40,39 @@ const Header = () => {
     // Fetch categories and brands
     fetchCategories();
     fetchBrands();
+  }, [dispatch]);
 
+  useEffect(() => {
     // Close dropdowns when clicking outside
     const handleClickOutside = (event) => {
-      if (!event.target.closest('.category-dropdown') && isCategoryOpen) {
+      if (!event.target.closest('.category-dropdown')) {
         setIsCategoryOpen(false);
       }
-      if (!event.target.closest('.brand-dropdown') && isBrandOpen) {
+      if (!event.target.closest('.brand-dropdown')) {
         setIsBrandOpen(false);
       }
     };
 
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [dispatch, isCategoryOpen, isBrandOpen]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const fetchCategories = async () => {
     try {
       const response = await axiosInstance.get('/categories/');
-      const categoriesData = response.data?.data?.items || response.data?.data || [];
-      setCategories(categoriesData);
+      const categoriesData = response.data?.data || [];
+      
+      // Organize categories into parent-child structure
+      const parentCategories = categoriesData.filter(cat => cat.parent_id === null);
+      const childCategories = categoriesData.filter(cat => cat.parent_id !== null);
+      
+      // Build hierarchical structure
+      const hierarchicalCategories = parentCategories.map(parent => ({
+        ...parent,
+        children: childCategories.filter(child => child.parent_id === parent.id)
+      }));
+      
+      setCategories(hierarchicalCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -157,22 +171,15 @@ const Header = () => {
             <div className="relative group category-dropdown">
               <button
                 onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                className="text-sm font-medium text-gray-900 hover:text-orange-600 transition-colors py-2 bg-transparent border-none cursor-pointer flex items-center gap-2"
+                className="text-sm font-medium text-gray-900 hover:text-orange-600 transition-colors py-2 bg-transparent border-none cursor-pointer flex items-center gap-1"
               >
                 Categories
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                  />
-                </svg>
+                <ChevronDown size={14}/>
               </button>
 
               {/* Category Dropdown Menu */}
               <div
-                className={`absolute top-full left-0 mt-2 bg-white rounded-md min-w-[200px] z-50 transition-all ${
+                className={`absolute top-full left-0 mt-2 bg-white rounded-md min-w-60 z-50 transition-all ${
                   isCategoryOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
                 }`}
                 style={{
@@ -180,17 +187,35 @@ const Header = () => {
                 }}
               >
                 {categories.length > 0 ? (
-                  categories.map((category, idx) => (
-                    <Link
-                      key={category.id || idx}
-                      href={`/products?category=${category.slug}`}
-                      className={`block text-sm text-gray-900 py-4 px-6 no-underline hover:bg-gray-100 transition-colors ${
-                        idx < categories.length - 1 ? 'border-b border-gray-200' : ''
-                      }`}
-                      onClick={() => setIsCategoryOpen(false)}
-                    >
-                      {category.name}
-                    </Link>
+                  categories.map((category) => (
+                    <div key={category.id}>
+                      {/* Parent Category */}
+                      <Link
+                        href={`/products?category=${category.slug}`}
+                        className="block text-sm font-semibold text-gray-900 py-3 px-6 no-underline hover:bg-orange-50 transition-colors border-b border-gray-200"
+                        onClick={() => setIsCategoryOpen(false)}
+                      >
+                        {category.name}
+                      </Link>
+                      
+                      {/* Child Categories */}
+                      {category.children && category.children.length > 0 && (
+                        <div className="bg-gray-50">
+                          {category.children.map((child, childIdx) => (
+                            <Link
+                              key={child.id}
+                              href={`/products?category=${child.slug}`}
+                              className={`block text-sm text-gray-700 py-2 pl-10 pr-6 no-underline hover:bg-orange-50 transition-colors ${
+                                childIdx < category.children.length - 1 ? 'border-b border-gray-100' : 'border-b border-gray-200'
+                              }`}
+                              onClick={() => setIsCategoryOpen(false)}
+                            >
+                              {child.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   ))
                 ) : (
                   <div className="text-sm text-gray-500 py-4 px-6">
@@ -204,17 +229,10 @@ const Header = () => {
             <div className="relative group brand-dropdown">
               <button
                 onClick={() => setIsBrandOpen(!isBrandOpen)}
-                className="text-sm font-medium text-gray-900 hover:text-orange-600 transition-colors py-2 bg-transparent border-none cursor-pointer flex items-center gap-2"
+                className="text-sm font-medium text-gray-900 hover:text-orange-600 transition-colors py-2 bg-transparent border-none cursor-pointer flex items-center gap-1"
               >
                 Brands
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                  />
-                </svg>
+                <ChevronDown size={14}/>
               </button>
 
               {/* Brands Dropdown Menu */}
@@ -350,34 +368,48 @@ const Header = () => {
             {/* Categories in Mobile */}
             <button
               onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-              className="text-sm font-medium text-gray-900 hover:text-orange-600 bg-transparent border-none cursor-pointer text-left flex items-center gap-2"
+              className="text-sm font-medium text-gray-900 hover:text-orange-600 bg-transparent border-none cursor-pointer text-left flex items-center gap-1"
             >
               Categories
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={isCategoryOpen ? "M5 15l7-7 7 7" : "M19 14l-7 7m0 0l-7-7m7 7V3"}
-                />
-              </svg>
+              <ChevronDown size={14}/>
             </button>
 
             {isCategoryOpen && (
-              <div className="pl-6 flex flex-col gap-2">
+              <div className="pl-4 flex flex-col gap-2">
                 {categories.length > 0 ? (
-                  categories.map((category, idx) => (
-                    <Link
-                      key={category.id || idx}
-                      href={`/products?category=${category.slug}`}
-                      className="text-sm text-gray-700 hover:text-orange-600 no-underline"
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        setIsCategoryOpen(false);
-                      }}
-                    >
-                      {category.name}
-                    </Link>
+                  categories.map((category) => (
+                    <div key={category.id} className="flex flex-col gap-1">
+                      {/* Parent Category */}
+                      <Link
+                        href={`/products?category=${category.slug}`}
+                        className="text-sm font-semibold text-gray-900 hover:text-orange-600 no-underline"
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          setIsCategoryOpen(false);
+                        }}
+                      >
+                        {category.name}
+                      </Link>
+                      
+                      {/* Child Categories */}
+                      {category.children && category.children.length > 0 && (
+                        <div className="pl-4 flex flex-col gap-1">
+                          {category.children.map((child) => (
+                            <Link
+                              key={child.id}
+                              href={`/products?category=${child.slug}`}
+                              className="text-sm text-gray-700 hover:text-orange-600 no-underline"
+                              onClick={() => {
+                                setIsMenuOpen(false);
+                                setIsCategoryOpen(false);
+                              }}
+                            >
+                              {child.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   ))
                 ) : (
                   <span className="text-sm text-gray-500">Loading...</span>
@@ -388,17 +420,10 @@ const Header = () => {
             {/* Brands in Mobile */}
             <button
               onClick={() => setIsBrandOpen(!isBrandOpen)}
-              className="text-sm font-medium text-gray-900 hover:text-orange-600 bg-transparent border-none cursor-pointer text-left flex items-center gap-2"
+              className="text-sm font-medium text-gray-900 hover:text-orange-600 bg-transparent border-none cursor-pointer text-left flex items-center gap-1"
             >
               Brands
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={isBrandOpen ? "M5 15l7-7 7 7" : "M19 14l-7 7m0 0l-7-7m7 7V3"}
-                />
-              </svg>
+              <ChevronDown size={14}/>
             </button>
 
             {isBrandOpen && (
