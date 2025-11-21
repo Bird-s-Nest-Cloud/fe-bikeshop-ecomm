@@ -90,6 +90,12 @@ const ProductsPage = ({
 
   const [sortBy, setSortBy] = useState(getSortBy());
 
+  // Sync filters and sort with URL params when they change
+  useEffect(() => {
+    setFilters(getCurrentFilters());
+    setSortBy(getSortBy());
+  }, [searchParams]);
+
   // Update URL with new query params
   const updateURL = (newFilters, newSortBy, newPage) => {
     const params = new URLSearchParams();
@@ -187,7 +193,7 @@ const ProductsPage = ({
           <select
             value={sortBy}
             onChange={(e) => handleSortChange(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 ml-auto"
+            className="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-orange-500 ml-auto text-gray-700"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>

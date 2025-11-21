@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { cookies } from 'next/headers';
 import ProductsPage from '@/components/products/ProductsPage';
 import { axiosInstance } from '@/utils/axiosInstance';
@@ -115,11 +116,20 @@ export default async function ProductsRoute({ searchParams }) {
   const filtersData = await getFiltersData();
 
   return (
-    <ProductsPage 
-      initialProductsData={productsData}
-      categoriesData={filtersData.categories}
-      brandsData={filtersData.brands}
-      initialSearchParams={params}
-    />
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 mb-4" style={{ borderColor: 'var(--accent-orange)' }}></div>
+          <p className="text-lg" style={{ color: 'var(--neutral-gray700)' }}>Loading products...</p>
+        </div>
+      </div>
+    }>
+      <ProductsPage 
+        initialProductsData={productsData}
+        categoriesData={filtersData.categories}
+        brandsData={filtersData.brands}
+        initialSearchParams={params}
+      />
+    </Suspense>
   );
 }
