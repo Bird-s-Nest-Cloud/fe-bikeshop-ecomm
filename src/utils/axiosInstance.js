@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: "https://demo-biker-sl.fdf-canada.org/api",
   timeout: 50000,
   withCredentials: true, // Enable sending cookies with requests
 });
