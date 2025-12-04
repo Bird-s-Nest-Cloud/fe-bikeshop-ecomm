@@ -2,9 +2,10 @@
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 
-export default function OrderConfirmationPage() {
+// Component that uses search params
+function OrderConfirmationContent() {
   const searchParams = useSearchParams();
   const [orderData, setOrderData] = useState(null);
 
@@ -221,5 +222,22 @@ export default function OrderConfirmationPage() {
        
       </div>
     </div>
+  );
+}
+
+// Main page component with Suspense wrapper
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense fallback={
+      <div className="bg-gray-50 min-h-screen py-8">
+        <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-12">
+          <div className="flex items-center justify-center h-64">
+            <p style={{ color: 'var(--neutral-gray700)' }}>Loading order confirmation...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <OrderConfirmationContent />
+    </Suspense>
   );
 }
