@@ -7,6 +7,11 @@ const nextConfig = {
                 hostname: 'localhost',
                 port: '8000',
                 pathname: '**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'demo-biker-sl.fdf-canada.org',
+                pathname: '**',
             }
         ]
     },
