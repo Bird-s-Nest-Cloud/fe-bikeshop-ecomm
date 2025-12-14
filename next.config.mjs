@@ -10,7 +10,7 @@ const nextConfig = {
             },
             {
                 protocol: 'https',
-                hostname: 'demo-biker-sl.fdf-canada.org',
+                hostname: 'api.bikersl.com',
                 pathname: '**',
             }
         ]
