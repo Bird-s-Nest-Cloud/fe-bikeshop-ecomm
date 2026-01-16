@@ -73,8 +73,7 @@ const HeroCarousel = ({ banners = [] }) => {
 
   return (
     <div
-      className="relative w-full overflow-hidden rounded-lg"
-      style={{ minHeight: '500px' }}
+      className="relative w-full overflow-hidden min-h-[350px] lg:min-h-[600px]"
       onMouseEnter={() => setIsAutoplay(false)}
       onMouseLeave={() => setIsAutoplay(true)}
     >
@@ -89,17 +88,14 @@ const HeroCarousel = ({ banners = [] }) => {
         {slides.map((slide, idx) => (
           <div
             key={idx}
-            className="relative min-w-full overflow-hidden"
-            style={{
-              minHeight: '500px',
-            }}
+            className="relative min-w-full overflow-hidden min-h-[350px] lg:min-h-[600px]"
           >
             {/* Background Image */}
             <ImageComponent
               src={slide.image}
               alt={slide.headline}
               width={1200}
-              height={500}
+              height={600}
               className="absolute inset-0 w-full h-full object-cover"
               style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
             />
@@ -141,10 +137,8 @@ const HeroCarousel = ({ banners = [] }) => {
               {slide.cta && (
                 <Link
                   href={slide.cta.href}
-                  className="inline-block text-white px-8 py-4 rounded-md font-semibold text-base transition-all hover:shadow-lg"
-                  style={{
-                    backgroundColor: 'var(--accent-orange)',
-                  }}
+                  className="inline-block text-white px-8 py-4 rounded-md font-semibold text-base transition-all hover:shadow-lg bg-[var(--accent-orange)]"
+                  
                   onMouseEnter={(e) => e.target.style.opacity = '0.9'}
                   onMouseLeave={(e) => e.target.style.opacity = '1'}
                 >
@@ -159,7 +153,7 @@ const HeroCarousel = ({ banners = [] }) => {
       {/* Navigation Buttons - Prev */}
       <button
         onClick={prevSlide}
-        className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-8 sm:w-12 h-8 sm:h-12 rounded-full border-none cursor-pointer flex items-center justify-center transition-all hover:shadow-lg z-10"
+        className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 sm:h-12 rounded-r-md border-none cursor-pointer flex items-center justify-center transition-all hover:shadow-lg z-10"
         style={{
           backgroundColor: 'rgba(255, 255, 255, 0.8)',
           color: 'var(--primary-main)',
@@ -171,7 +165,7 @@ const HeroCarousel = ({ banners = [] }) => {
       {/* Navigation Buttons - Next */}
       <button
         onClick={nextSlide}
-        className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-8 sm:w-12 h-8 sm:h-12 rounded-full border-none cursor-pointer flex items-center justify-center transition-all hover:shadow-lg z-10"
+        className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 sm:h-12 rounded-l-md border-none cursor-pointer flex items-center justify-center transition-all hover:shadow-lg z-10"
         style={{
           backgroundColor: 'rgba(255, 255, 255, 0.8)',
           color: 'var(--primary-main)',

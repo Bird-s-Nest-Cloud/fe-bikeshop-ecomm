@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import ImageComponent from '../shared/ImageComponent';
@@ -26,6 +26,8 @@ import ImageComponent from '../shared/ImageComponent';
 const Categories = ({ categories = [] }) => {
   const title = 'Shop by Category';
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(true);
+  const [itemsPerSlide, setItemsPerSlide] = useState(3);
 
   // Transform API categories data to items format
   const items = categories.map(category => ({
@@ -35,121 +37,198 @@ const Categories = ({ categories = [] }) => {
     productCount: category.product_count
   }));
 
-  // Determine items per slide based on screen size (will be set via data attribute)
-  const itemsPerSlide = 4;
+  // Responsive items per slide: lg=3, md=2, sm=1
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width >= 1400) {
+        setItemsPerSlide(4); // xl screens
+      } else if (width >= 1024) {
+        setItemsPerSlide(3); // lg screens
+      } else if (width >= 768) {
+        setItemsPerSlide(2); // md screens
+      } else {
+        setItemsPerSlide(1); // sm screens
+      }
+    };
 
-  // Calculate total slides
-  const totalSlides = Math.ceil(items.length / itemsPerSlide);
+    // Set initial value
+    handleResize();
 
-  // Ensure currentIndex doesn't exceed available slides
-  const safeCurrentIndex = Math.min(currentIndex, Math.max(0, totalSlides - 1));
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  // Get visible items for current slide
-  const visibleItems = items.slice(
-    safeCurrentIndex * itemsPerSlide,
-    safeCurrentIndex * itemsPerSlide + itemsPerSlide
-  );
+  // Total items for looping
+  const totalItems = items.length;
 
-  // Handle next slide
+  // Ref for pausing auto-slide on hover
+  const isPaused = useRef(false);
+
+  // Create extended items array for infinite loop (clone items at both ends)
+  const extendedItems = totalItems > 0 
+    ? [...items.slice(-itemsPerSlide), ...items, ...items.slice(0, itemsPerSlide)]
+    : [];
+
+  // Offset to account for cloned items at the start
+  const cloneOffset = itemsPerSlide;
+
+  // Auto-slide effect - slides one item at a time
+  useEffect(() => {
+    if (totalItems <= itemsPerSlide) return;
+
+    const interval = setInterval(() => {
+      if (!isPaused.current) {
+        setCurrentIndex(prev => prev + 1);
+      }
+    }, 4000); // 4 seconds interval
+
+    return () => clearInterval(interval);
+  }, [totalItems]);
+
+  // Handle infinite loop reset
+  useEffect(() => {
+    if (currentIndex >= totalItems) {
+      // After transition ends, instantly reset to the real first item
+      const timeout = setTimeout(() => {
+        setIsTransitioning(false);
+        setCurrentIndex(0);
+      }, 500);
+      return () => clearTimeout(timeout);
+    }
+    if (currentIndex < 0) {
+      // After transition ends, instantly reset to the real last item
+      const timeout = setTimeout(() => {
+        setIsTransitioning(false);
+        setCurrentIndex(totalItems - 1);
+      }, 500);
+      return () => clearTimeout(timeout);
+    }
+  }, [currentIndex, totalItems]);
+
+  // Re-enable transition after instant reset
+  useEffect(() => {
+    if (!isTransitioning) {
+      const timeout = setTimeout(() => {
+        setIsTransitioning(true);
+      }, 50);
+      return () => clearTimeout(timeout);
+    }
+  }, [isTransitioning]);
+
+  // Handle next slide - move by one item
   const handleNext = () => {
-    setCurrentIndex(prev => (prev + 1) % totalSlides);
+    setCurrentIndex(prev => prev + 1);
   };
 
-  // Handle prev slide
+  // Handle prev slide - move by one item
   const handlePrev = () => {
-    setCurrentIndex(prev => (prev - 1 + totalSlides) % totalSlides);
+    setCurrentIndex(prev => prev - 1);
   };
 
   return (
     <section className="w-full bg-white py-16 px-4 md:px-6 lg:px-12">
       <div className="max-w-7xl mx-auto">
         {/* Section Title */}
-        <div className="mb-12 text-center">
+        {/* <div className="mb-12 text-center">
           <h2 className="text-4xl font-bold mb-4" style={{ color: 'var(--neutral-gray900)' }}>
             {title}
           </h2>
           <div className="w-20 h-1 mx-auto rounded-full" style={{ backgroundColor: 'var(--accent-orange)' }} />
-        </div>
+        </div> */}
 
-        {/* Carousel Container */}
-        <div className="relative">
-          {/* Categories Carousel Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {visibleItems.map((item, idx) => (
-              <Link key={idx} href={item.href} className="group cursor-pointer">
-                <div
-                  className="relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all"
-                  style={{
-                    minHeight: '250px',
-                    backgroundColor: 'var(--neutral-gray300)',
-                  }}
-                >
-                  {/* Background Image */}
-                  <ImageComponent
-                    src={item.image}
-                    alt={item.name}
-                    width={300}
-                    height={250}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-                  />
-
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-300" />
-
-                  {/* Content */}
-                  <div
-                    className="absolute inset-0 p-6 text-white flex flex-col justify-end"
-                    style={{
-                      background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
-                      zIndex: 2,
-                    }}
-                  >
-                    <h3 className="text-lg font-bold mb-2">{item.name}</h3>
-
-                    {/* Arrow Icon */}
-                    <div className="opacity-0 group-hover:opacity-100 -translate-x-2.5 group-hover:translate-x-0 transition-all duration-300">
-                      <ArrowRight size={24} />
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          {/* Navigation Buttons - Only show on desktop when there are multiple slides */}
-          {totalSlides > 1 && (
+        {/* Carousel Wrapper - allows buttons to overflow */}
+        <div
+          className="relative px-8 lg:px-14"
+          onMouseEnter={() => (isPaused.current = true)}
+          onMouseLeave={() => (isPaused.current = false)}
+        >
+          {/* Navigation Buttons - positioned outside the overflow hidden area */}
+          {totalItems > itemsPerSlide && (
             <>
               {/* Previous Button */}
               <button
                 onClick={handlePrev}
-                className="hidden lg:flex absolute -left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full items-center justify-center transition-all hover:scale-110 z-40"
-                style={{
-                  backgroundColor: 'var(--accent-orange)',
-                  color: 'white',
-                }}
+                className="hidden text-[var(--accent-orange)] lg:flex absolute -left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full items-center justify-center transition-all hover:scale-110 z-40"
+                
                 aria-label="Previous categories"
               >
-                <ChevronLeft size={24} />
+                <ChevronLeft size={34} />
               </button>
 
               {/* Next Button */}
               <button
                 onClick={handleNext}
-                className="hidden lg:flex absolute -right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full items-center justify-center transition-all hover:scale-110 z-40"
-                style={{
-                  backgroundColor: 'var(--accent-orange)',
-                  color: 'white',
-                }}
+                className="hidden text-[var(--accent-orange)] lg:flex absolute -right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full items-center justify-center transition-all hover:scale-110 z-40"
+                
                 aria-label="Next categories"
               >
-                <ChevronRight size={24} />
+                <ChevronRight size={34} />
               </button>
             </>
           )}
 
+          {/* Carousel Container - clips the slides */}
+          <div className="overflow-hidden">
+            {/* Categories Carousel Track */}
+            <div
+              className="flex"
+              style={{
+                gap: '24px',
+                transform: `translateX(calc(-${(currentIndex + cloneOffset)} * (100% + 24px) / ${itemsPerSlide}))`,
+                transition: isTransitioning ? 'transform 500ms ease-in-out' : 'none',
+              }}
+            >
+              {extendedItems.map((item, idx) => (
+                <Link
+                  key={idx}
+                  href={item.href}
+                  className="group cursor-pointer flex-shrink-0"
+                  style={{ width: `calc((100% - ${(itemsPerSlide - 1) * 24}px) / ${itemsPerSlide})` }}
+                >
+                  <div
+                    className="relative bg-white overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all"
+                    style={{
+                      minHeight: '150px',
+                      backgroundColor: 'var(--neutral-gray300)',
+                    }}
+                  >
+                    {/* Background Image */}
+                    <ImageComponent
+                      src={item.image}
+                      alt={item.name}
+                      width={300}
+                      height={250}
+                      className="absolute left-6 top-1/2 transform -translate-y-1/2 w-[40%] aspect-square object-contain group-hover:scale-110 transition-transform duration-300"
+                      
+                    />
+
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-300" />
+
+                    {/* Content */}
+                    <div
+                      className="absolute right-0 top-0 bottom-0 p-6 text-white flex flex-col justify-end"
+                      style={{
+                        background: 'linear-gradient(to left, rgba(0,0,0,0.7), transparent)',
+                        zIndex: 2,
+                      }}
+                    >
+                      <h3 className="text-lg font-bold mb-2">{item.name}</h3>
+
+                      {/* Arrow Icon */}
+                      <div className="opacity-0 group-hover:opacity-100 -translate-x-2.5 group-hover:translate-x-0 transition-all duration-300">
+                        <ArrowRight size={24} />
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
           {/* Mobile Navigation Buttons */}
-          {totalSlides > 1 && (
+          {/* {totalItems > itemsPerSlide && (
             <div className="flex lg:hidden gap-2 mt-6 justify-center">
               <button
                 onClick={handlePrev}
@@ -174,19 +253,19 @@ const Categories = ({ categories = [] }) => {
                 <ChevronRight size={20} />
               </button>
             </div>
-          )}
+          )} */}
 
           {/* Slide Indicators */}
-          {totalSlides > 1 && (
+          {totalItems > itemsPerSlide && (
             <div className="flex gap-2 mt-6 justify-center">
-              {Array.from({ length: totalSlides }).map((_, idx) => (
+              {Array.from({ length: totalItems }).map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => setCurrentIndex(idx)}
                   className="h-2 rounded-full transition-all"
                   style={{
-                    width: safeCurrentIndex === idx ? '24px' : '8px',
-                    backgroundColor: safeCurrentIndex === idx ? 'var(--accent-orange)' : 'var(--neutral-gray400)',
+                    width: ((currentIndex % totalItems) + totalItems) % totalItems === idx ? '24px' : '8px',
+                    backgroundColor: ((currentIndex % totalItems) + totalItems) % totalItems === idx ? 'var(--accent-orange)' : 'var(--neutral-gray400)',
                   }}
                   aria-label={`Go to slide ${idx + 1}`}
                 />

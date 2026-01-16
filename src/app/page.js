@@ -1,10 +1,12 @@
 import { cookies } from 'next/headers';
 import HeroCarousel from '@/components/sections/HeroCarousel';
 import Categories from '@/components/sections/Categories';
+import Benefits from '@/components/sections/Benefits';
 import FeaturedProducts from '@/components/sections/FeaturedProducts';
 import NewProducts from '@/components/sections/NewProducts';
 import BrandsCarousel from '@/components/sections/BrandsCarousel';
 import { axiosInstance } from '@/utils/axiosInstance';
+import CategoryProducts from '@/components/sections/CategoryProducts';
 
 export const metadata = {
   title: 'GearZ Bangladesh - Premium Bike Helmets & Riding Gear | Shop Online',
@@ -63,18 +65,22 @@ export default async function Home() {
   const banners = apiData?.banners || [];
   const categories = apiData?.categories || [];
   const brands = apiData?.brands || [];
+  const categoryProducts = apiData?.category_products || [];
   const featuredSection = apiData?.featured_sections?.find(
     section => section.section_type === 'featured'
   );
   const newSection = apiData?.featured_sections?.find(
     section => section.section_type === 'new'
   );
+  const saleSection = apiData?.featured_sections?.find(
+    section => section.title === 'Special Offer'
+  );
 
   return (
     <main className="w-full">
       {/* Hero Carousel Section */}
-      <section className="px-4 md:px-6 lg:px-12 py-4 bg-white">
-        <div className="max-w-7xl mx-auto">
+      <section className="b-4 bg-white">
+        <div className="">
           <HeroCarousel banners={banners} />
         </div>
       </section>
@@ -82,11 +88,16 @@ export default async function Home() {
       {/* Categories Section */}
       <Categories categories={categories} />
 
+      {/* Benefits Section */}
+      <Benefits />
+
       {/* Featured Products Section */}
-      <FeaturedProducts featuredSection={featuredSection} />
+      <FeaturedProducts featuredSection={featuredSection} newSection={newSection} saleSection={saleSection} />
 
       {/* New Products Section */}
-      <NewProducts newSection={newSection} />
+      {/* <NewProducts newSection={newSection} /> */}
+
+      <CategoryProducts categoryProducts={categoryProducts} />
 
       {/* Brands Carousel Section */}
       <BrandsCarousel brands={brands} />

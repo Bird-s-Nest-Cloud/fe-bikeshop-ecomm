@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import ProductDetailsPage from '@/components/products/ProductDetailsPage';
+import FeaturedSectionsGrid from '@/components/shared/FeaturedSectionsGrid';
 import { axiosInstance } from '@/utils/axiosInstance';
 
 // Fetch product data server-side
@@ -15,19 +16,22 @@ async function getProductData(slug) {
     });
     
     if (response.data && response.data.status) {
-      return response.data.data;
+      return {
+        product: response.data.data,
+        featuredSections: response.data.featured_sections || []
+      };
     }
     
-    return null;
+    return { product: null, featuredSections: [] };
   } catch (error) {
     console.error('Error fetching product data:', error.message);
-    return null;
+    return { product: null, featuredSections: [] };
   }
 }
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const product = await getProductData(slug);
+  const { product } = await getProductData(slug);
 
   if (!product) {
     return {
@@ -57,7 +61,7 @@ export async function generateMetadata({ params }) {
 
 export default async function ProductPage({ params }) {
   const { slug } = await params;
-  const productData = await getProductData(slug);
+  const { product: productData, featuredSections } = await getProductData(slug);
   
   if (!productData) {
     return (
@@ -74,5 +78,17 @@ export default async function ProductPage({ params }) {
     );
   }
 
-  return <ProductDetailsPage productData={productData} />;
+  return (
+    <>
+      <ProductDetailsPage productData={productData} />
+      
+      {/* Featured Sections Grid */}
+      {featuredSections && featuredSections.length > 0 && (
+        <FeaturedSectionsGrid 
+          sections={featuredSections} 
+          maxProducts={3} 
+        />
+      )}
+    </>
+  );
 }

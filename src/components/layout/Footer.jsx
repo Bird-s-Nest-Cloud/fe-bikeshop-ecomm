@@ -52,7 +52,7 @@ const Footer = () => {
   const copyright = footerData?.copyright;
 
   return (
-    <footer className="bg-[--primary-main] text-white pt-16 px-6">
+    <footer className="bg-[#0a0a0a] text-white pt-16 px-6">
       <div className="max-w-7xl mx-auto">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
