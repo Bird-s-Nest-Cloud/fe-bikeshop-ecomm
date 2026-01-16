@@ -7,6 +7,11 @@ const nextConfig = {
                 hostname: 'localhost',
                 port: '8000',
                 pathname: '**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'api.bikersl.com',
+                pathname: '**',
             }
         ]
     },

@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  frontend:
+    build: .
+    container_name: bikersl-nextjs
+    ports:
+      - "3001:3000"
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+
+  # Optional: backend service (agar already dockerized na hoy)
+  # backend:
+  #   image: your-backend-image
+  #   container_name: api-bikersl
+  #   ports:
+  #     - "8000:8000"
+  #   restart: unless-stopped
+  #   environment:
+  #     DATABASE_URL: postgres://...
+
+# volumes / networks optional, frontend alada container, backend already running
