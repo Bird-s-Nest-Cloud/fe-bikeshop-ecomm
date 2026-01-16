@@ -259,7 +259,7 @@ const FeaturedProducts = ({ featuredSection, newSection, saleSection }) => {
             <p className="text-gray-600 text-lg mb-4">{subTitle}</p>
           )}
         </div>
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[1px]">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[2px]">
             {products.map((product, idx) => (
               <FeaturedProductCard key={product.id || idx} product={product} />
             ))}

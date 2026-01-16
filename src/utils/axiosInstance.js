@@ -2,7 +2,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const axiosInstance = axios.create({
-  baseURL: "https://api.bikersl.com/api",
+  baseURL: "http://localhost:8000/api",
+  // baseURL: "https://api.bikersl.com/api",
   timeout: 50000,
   withCredentials: true, // Enable sending cookies with requests
 });

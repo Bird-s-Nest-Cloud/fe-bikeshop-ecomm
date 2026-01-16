@@ -73,7 +73,7 @@ export default async function Home() {
     section => section.section_type === 'new'
   );
   const saleSection = apiData?.featured_sections?.find(
-    section => section.title === 'Special Offer'
+    section => section.section_type === 'sale'
   );
 
   return (
